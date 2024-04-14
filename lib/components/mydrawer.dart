@@ -10,9 +10,9 @@ class MyDrawer extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            //const DrawerHeader(
-            //child: Text("StudFood"),
-            //),
+            const DrawerHeader(
+              child: Text("StudFood"),
+            ),
             ListTile(
               title: const Text("Strona główna"),
               onTap: () {
