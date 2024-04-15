@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:studfood/pages/homepage.dart';
 import 'components/customtheme.dart';
+import 'package:studfood/pages/restaurantpage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -17,6 +18,7 @@ class MainApp extends StatelessWidget {
         home: const HomePage(),
         routes: {
           'HomePage': (context) => const HomePage(),
+          'RestaurantPage': (context) => const RestaurantPage(),
         });
   }
 }
