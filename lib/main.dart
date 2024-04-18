@@ -1,9 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:studfood/firebase_options.dart';
 import 'package:studfood/pages/homepage.dart';
 import 'components/customtheme.dart';
 import 'package:studfood/pages/restaurantpage.dart';
+import 'package:studfood/pages/adminpage.dart';
 
-void main() {
+void main() async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MainApp());
 }
 
@@ -19,6 +23,7 @@ class MainApp extends StatelessWidget {
         routes: {
           'HomePage': (context) => const HomePage(),
           'RestaurantPage': (context) => const RestaurantPage(),
+          'AdminPage': (context) => const AdminPage(),
         });
   }
 }

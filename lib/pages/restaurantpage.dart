@@ -43,39 +43,79 @@ class _RestaurantPageState extends State<RestaurantPage> {
           ),
           // --------------------
           //       Buttons
-          Row(children: [
-            const Spacer(),
-            //----------
-            //Heart
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.favorite_border),
-              iconSize: 80,
-              color: Colors.white,
+          Row(
+            children: [
+              const Spacer(),
+              //----------
+              //Heart
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.favorite_border),
+                iconSize: 80,
+                color: Colors.white,
+              ),
+              //----------
+              const Spacer(),
+              //----------
+              //Menu
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.menu_book),
+                iconSize: 80,
+                color: Colors.white,
+              ),
+              //----------
+              const Spacer(),
+              //----------
+              //Navigation
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.near_me),
+                iconSize: 80,
+                color: Colors.white,
+              ),
+              //----------
+              const Spacer(),
+            ],
+          ),
+          //       Buttons
+          // --------------------
+          //       Info
+          const Padding(
+            padding: EdgeInsets.all(30.0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.location_on, size: 35),
+                    SizedBox(width: 10),
+                    Text(
+                      "Węgłowa 32, 23-231 Kraków",
+                      style: TextStyle(fontSize: 20),
+                    )
+                  ],
+                ),
+                // --------------------
+                SizedBox(height: 10),
+                // --------------------
+                Row(children: [
+                  Icon(Icons.schedule, size: 35),
+                  SizedBox(width: 10),
+                  Text(
+                    "Pon-pt 14-21",
+                    style: TextStyle(fontSize: 20),
+                  )
+                ])
+              ],
             ),
-            //----------
-            const Spacer(),
-            //----------
-            //Menu
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.menu_book),
-              iconSize: 80,
-              color: Colors.white,
-            ),
-            //----------
-            const Spacer(),
-            //----------
-            //Navigation
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.near_me),
-              iconSize: 80,
-              color: Colors.white,
-            ),
-            //----------
-            const Spacer(),
-          ])
+          ),
+          //       Info
+          // --------------------
+          const Divider(
+            indent: 30,
+            endIndent: 30,
+            color: Colors.white,
+          ),
         ],
       ),
     );
