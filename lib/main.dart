@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:studfood/firebase_options.dart';
 import 'package:studfood/pages/homepage.dart';
-import 'components/customtheme.dart';
+import 'components/custom_theme.dart';
 import 'package:studfood/pages/restaurantpage.dart';
 import 'package:studfood/pages/adminpage.dart';
 

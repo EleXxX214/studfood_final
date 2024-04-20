@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'package:studfood/components/mainappbar.dart';
-import 'package:studfood/components/mydrawer.dart';
-import 'package:studfood/components/customlisttile.dart';
+import 'package:studfood/components/main_appbar.dart';
+import 'package:studfood/components/my_drawer.dart';
+import 'package:studfood/components/custom_list_tile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

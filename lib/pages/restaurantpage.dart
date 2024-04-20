@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:studfood/components/customappbar.dart';
+import 'package:studfood/components/custom_appbar.dart';
 
 class RestaurantPage extends StatefulWidget {
   const RestaurantPage({super.key});
