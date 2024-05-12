@@ -22,7 +22,9 @@ class MainApp extends StatelessWidget {
         home: const HomePage(),
         routes: {
           'HomePage': (context) => const HomePage(),
-          'RestaurantPage': (context) => const RestaurantPage(),
+          'RestaurantPage': (context) => const RestaurantPage(
+                restaurantId: '',
+              ),
           'AdminPage': (context) => const AdminPage(),
         });
   }

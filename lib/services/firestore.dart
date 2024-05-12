@@ -16,7 +16,13 @@ class FirestoreService {
     });
   }
 
-  //Read
+//Read restaurant
+
+  Future<DocumentSnapshot> getRestaurant(String docId) async {
+    return await restaurants.doc(docId).get();
+  }
+
+  //Read restaurants
 
   Stream<QuerySnapshot> getRestaurants() {
     final restaurantStream = restaurants.orderBy('name').snapshots();
@@ -25,8 +31,14 @@ class FirestoreService {
 
 //Update
 
-  Future<void> updateRestaurant(String docID, String newName) {
-    return restaurants.doc(docID).update({'name': newName});
+  Future<void> updateRestaurant(String docID, String newName, String newAddress,
+      num? newDiscountsAmount, String newDescription) {
+    return restaurants.doc(docID).update({
+      'name': newName,
+      'address': newAddress,
+      'discountsAmount': newDiscountsAmount,
+      'description': newDescription
+    });
   }
 
 //Delete

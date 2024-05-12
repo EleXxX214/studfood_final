@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:number_editing_controller/number_editing_controller.dart';
 import 'package:studfood/components/custom_appbar.dart';
 import 'package:studfood/services/firestore.dart';
@@ -26,12 +27,52 @@ class _AdminPageState extends State<AdminPage> {
 // --------------------
 //       openAddBox
   void openAddBox({String? docID}) {
+    //Jeżeli edytuje to pobiera dane edytującej restauracji
+    if (docID != null) {
+      // Edytujesz restaurację, pobierz jej aktualne wartości
+      firestoreService.getRestaurant(docID).then((restaurantData) {
+        nameController.text = restaurantData['name'];
+        addressController.text = restaurantData['address'];
+        discountsAmountController.text =
+            restaurantData['discountsAmount'].toString();
+        descriptionController.text = restaurantData['description'];
+      });
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(docID == null ? "Add restaurant" : "Update restaurant"),
-        content: TextField(
-          controller: nameController,
+        content: SingleChildScrollView(
+          child: SizedBox(
+            width: 500,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: 'Address'),
+                ),
+                TextField(
+                  controller: discountsAmountController,
+                  decoration:
+                      const InputDecoration(labelText: 'Discounts Amount'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                ),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                ),
+              ],
+            ),
+          ),
         ),
         actions: [
           IconButton(
@@ -45,10 +86,18 @@ class _AdminPageState extends State<AdminPage> {
                   descriptionController.text,
                 );
               } else {
-                firestoreService.updateRestaurant(docID, nameController.text);
+                firestoreService.updateRestaurant(
+                    docID,
+                    nameController.text,
+                    addressController.text,
+                    discountsAmountController.number,
+                    descriptionController.text);
               }
 
               nameController.clear();
+              addressController.clear();
+              discountsAmountController.clear();
+              descriptionController.clear();
               Navigator.of(context).pop();
             },
             icon: const Icon(Icons.add),
@@ -91,7 +140,7 @@ class _AdminPageState extends State<AdminPage> {
                     document.data() as Map<String, dynamic>;
                 String restaurantName = restaurant['name'];
                 String restaurantDiscounts =
-                    restaurant['discountsAmount'] ?? "No discounts";
+                    restaurant['discountsAmount']?.toString() ?? "No discounts";
 
                 // --------------------
                 //Display as a list tile
