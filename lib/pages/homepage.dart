@@ -35,15 +35,17 @@ class _HomePageState extends State<HomePage> {
                     document.data() as Map<String, dynamic>;
 
                 return CustomListTile(
-                    name: restaurant['name'],
-                    address: restaurant['address'],
-                    discountsAmount: restaurant['discountsAmount'],
-                    onTap: () {
-                      Navigator.pushNamed(context, "RestaurantPage",
-                          arguments: {
-                            'restaurantId': docId,
-                          });
-                    });
+                  name: restaurant['name'],
+                  address: restaurant['address'],
+                  discountsAmount: restaurant['discountsAmount'],
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      'RestaurantPage',
+                      arguments: docId,
+                    );
+                  },
+                );
               },
             );
           } else {

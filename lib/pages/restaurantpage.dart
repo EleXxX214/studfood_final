@@ -15,22 +15,23 @@ class RestaurantPage extends StatefulWidget {
 class _RestaurantPageState extends State<RestaurantPage> {
   late Future<Map<String, dynamic>> _restaurantFuture;
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.restaurantId.isNotEmpty) {
-      _restaurantFuture = _getRestaurantData();
-    } else {
-      _restaurantFuture = Future.error('restaurantId is empty');
-    }
-  }
-
-  Future<Map<String, dynamic>> _getRestaurantData() async {
+  Future<Map<String, dynamic>> getRestaurantData(String docId) async {
     DocumentSnapshot<Object?> restaurantSnapshot =
-        await FirestoreService().getRestaurant(widget.restaurantId);
+        await FirestoreService().getRestaurant(docId);
     Map<String, dynamic> restaurantData =
         restaurantSnapshot.data() as Map<String, dynamic>;
     return restaurantData;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print("Restaurant ID: ${widget.restaurantId}");
+    if (widget.restaurantId.isNotEmpty) {
+      _restaurantFuture = getRestaurantData(widget.restaurantId);
+    } else {
+      _restaurantFuture = Future.error('restaurantId is empty');
+    }
   }
 
   @override

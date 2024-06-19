@@ -7,6 +7,7 @@ import 'package:studfood/pages/restaurantpage.dart';
 import 'package:studfood/pages/adminpage.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MainApp());
 }
@@ -17,15 +18,24 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.customDarkTheme(),
-        home: const HomePage(),
-        routes: {
-          'HomePage': (context) => const HomePage(),
-          'RestaurantPage': (context) => const RestaurantPage(
-                restaurantId: '',
-              ),
-          'AdminPage': (context) => const AdminPage(),
-        });
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.customDarkTheme(),
+      home: const HomePage(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case 'HomePage':
+            return MaterialPageRoute(builder: (context) => const HomePage());
+          case 'RestaurantPage':
+            final String restaurantId = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (context) => RestaurantPage(restaurantId: restaurantId),
+            );
+          case 'AdminPage':
+            return MaterialPageRoute(builder: (context) => const AdminPage());
+          default:
+            return null;
+        }
+      },
+    );
   }
 }
