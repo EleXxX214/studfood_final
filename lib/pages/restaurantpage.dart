@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:studfood/components/custom_appbar.dart';
 import 'package:studfood/services/firestore.dart';
+import 'package:studfood/services/storage.dart';
 
 class RestaurantPage extends StatefulWidget {
   final String restaurantId;
@@ -14,6 +15,7 @@ class RestaurantPage extends StatefulWidget {
 
 class _RestaurantPageState extends State<RestaurantPage> {
   late Future<Map<String, dynamic>> _restaurantFuture;
+  late Future<String> imageUrl;
 
   Future<Map<String, dynamic>> getRestaurantData(String docId) async {
     DocumentSnapshot<Object?> restaurantSnapshot =
@@ -23,9 +25,15 @@ class _RestaurantPageState extends State<RestaurantPage> {
     return restaurantData;
   }
 
+  Future<String> downloadURLExample(String imageUrl) async {
+    String downloadURL = await storage.ref(imageUrl).getDownloadURL();
+    return downloadURL;
+  }
+
   @override
   void initState() {
     super.initState();
+    // ignore: avoid_print
     print("Restaurant ID: ${widget.restaurantId}");
     if (widget.restaurantId.isNotEmpty) {
       _restaurantFuture = getRestaurantData(widget.restaurantId);
@@ -72,7 +80,20 @@ class _RestaurantPageState extends State<RestaurantPage> {
               SizedBox(
                 width: 450,
                 height: 200,
-                child: Image.network(restaurantData['imageUrl'] ?? ""),
+                child: FutureBuilder<String>(
+                  future: downloadURLExample(restaurantData['imageUrl'] ?? ""),
+                  builder: (context, imageSnapshot) {
+                    if (imageSnapshot.connectionState == ConnectionState.done) {
+                      if (imageSnapshot.hasData) {
+                        return Image.network(imageSnapshot.data!);
+                      } else if (imageSnapshot.hasError) {
+                        return Text(
+                            'Error loading image: ${imageSnapshot.error}');
+                      }
+                    }
+                    return const CircularProgressIndicator(); // Pokaż spinner podczas ładowania obrazu
+                  },
+                ),
               ),
               // Buttons
               Row(

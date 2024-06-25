@@ -6,13 +6,14 @@ class FirestoreService {
 
   //Create
 
-  Future<void> addRestaurant(
-      String name, String address, num? discountsAmount, String description) {
+  Future<void> addRestaurant(String name, String address, num? discountsAmount,
+      String description, String imageUrl) {
     return restaurants.add({
       'name': name,
       'address': address,
       'discountsAmount': discountsAmount,
       'description': description,
+      'imageUrl': imageUrl,
     });
   }
 
@@ -32,12 +33,13 @@ class FirestoreService {
 //Update
 
   Future<void> updateRestaurant(String docID, String newName, String newAddress,
-      num? newDiscountsAmount, String newDescription) {
+      num? newDiscountsAmount, String newDescription, String newImageUrl) {
     return restaurants.doc(docID).update({
       'name': newName,
       'address': newAddress,
       'discountsAmount': newDiscountsAmount,
-      'description': newDescription
+      'description': newDescription,
+      'imageUrl': newImageUrl,
     });
   }
 

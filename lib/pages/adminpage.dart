@@ -19,6 +19,7 @@ class _AdminPageState extends State<AdminPage> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final discountsAmountController = NumberEditingTextController.integer();
+  final TextEditingController imageUrlController = TextEditingController();
 
 // --------------------
 //  FirestoreService
@@ -70,6 +71,10 @@ class _AdminPageState extends State<AdminPage> {
                   controller: descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
                 ),
+                TextField(
+                  controller: imageUrlController,
+                  decoration: const InputDecoration(labelText: 'imageUrl'),
+                ),
               ],
             ),
           ),
@@ -84,14 +89,17 @@ class _AdminPageState extends State<AdminPage> {
                   addressController.text,
                   discountsAmountController.number,
                   descriptionController.text,
+                  imageUrlController.text,
                 );
               } else {
                 firestoreService.updateRestaurant(
-                    docID,
-                    nameController.text,
-                    addressController.text,
-                    discountsAmountController.number,
-                    descriptionController.text);
+                  docID,
+                  nameController.text,
+                  addressController.text,
+                  discountsAmountController.number,
+                  descriptionController.text,
+                  imageUrlController.text,
+                );
               }
 
               nameController.clear();
