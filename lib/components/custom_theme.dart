@@ -5,7 +5,7 @@ class AppTheme {
     return ThemeData.dark().copyWith(
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          shape: MaterialStateProperty.all<OutlinedBorder>(
+          shape: WidgetStateProperty.all<OutlinedBorder>(
             const RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
             ),

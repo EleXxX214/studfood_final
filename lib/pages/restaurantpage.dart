@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:studfood/components/custom_appbar.dart';
 import 'package:studfood/services/firestore.dart';
 import 'package:studfood/services/storage.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io' show Platform;
 
 class RestaurantPage extends StatefulWidget {
   final String restaurantId;
@@ -39,6 +41,27 @@ class _RestaurantPageState extends State<RestaurantPage> {
       _restaurantFuture = getRestaurantData(widget.restaurantId);
     } else {
       _restaurantFuture = Future.error('restaurantId is empty');
+    }
+  }
+
+  Future<void> openMap(String address) async {
+    String googleUrl =
+        'https://www.google.com/maps/search/?api=1&query=$address';
+    String appleUrl = 'https://maps.apple.com/?q=$address';
+    if (Platform.isAndroid) {
+      if (await canLaunchUrl(Uri.parse(googleUrl))) {
+        await launchUrl(Uri.parse(googleUrl));
+      } else {
+        throw 'Could not launch $googleUrl';
+      }
+    } else if (Platform.isIOS) {
+      if (await canLaunchUrl(Uri.parse(appleUrl))) {
+        await launchUrl(Uri.parse(appleUrl));
+      } else if (await canLaunchUrl(Uri.parse(googleUrl))) {
+        await launchUrl(Uri.parse(googleUrl));
+      } else {
+        throw 'Could not launch $appleUrl or $googleUrl';
+      }
     }
   }
 
@@ -117,7 +140,10 @@ class _RestaurantPageState extends State<RestaurantPage> {
                   const Spacer(),
                   //Navigation
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      openMap(
+                          "Restauracja McDonald's, Mieczysława Medweckiego 13, 31-870 Kraków");
+                    },
                     icon: const Icon(Icons.near_me),
                     iconSize: 80,
                     color: Colors.white,

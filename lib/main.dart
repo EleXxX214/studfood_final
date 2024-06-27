@@ -5,6 +5,7 @@ import 'package:studfood/pages/homepage.dart';
 import 'components/custom_theme.dart';
 import 'package:studfood/pages/restaurantpage.dart';
 import 'package:studfood/pages/adminpage.dart';
+import 'package:studfood/pages/mappage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,8 @@ class MainApp extends StatelessWidget {
             );
           case 'AdminPage':
             return MaterialPageRoute(builder: (context) => const AdminPage());
+          case 'MapPage':
+            return MaterialPageRoute(builder: (context) => const MapPage());
           default:
             return null;
         }
