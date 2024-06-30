@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:studfood/components/custom_appbar.dart';
@@ -19,6 +21,9 @@ class _RestaurantPageState extends State<RestaurantPage> {
   late Future<Map<String, dynamic>> _restaurantFuture;
   late Future<String> imageUrl;
 
+// ------------------------
+// Pobieranie danych z bazy
+// ------------------------
   Future<Map<String, dynamic>> getRestaurantData(String docId) async {
     DocumentSnapshot<Object?> restaurantSnapshot =
         await FirestoreService().getRestaurant(docId);
@@ -27,15 +32,11 @@ class _RestaurantPageState extends State<RestaurantPage> {
     return restaurantData;
   }
 
-  Future<String> downloadURLExample(String imageUrl) async {
-    String downloadURL = await storage.ref(imageUrl).getDownloadURL();
-    return downloadURL;
-  }
-
+// ------------------------
+// ------------------------
   @override
   void initState() {
     super.initState();
-    // ignore: avoid_print
     print("Restaurant ID: ${widget.restaurantId}");
     if (widget.restaurantId.isNotEmpty) {
       _restaurantFuture = getRestaurantData(widget.restaurantId);
@@ -43,6 +44,9 @@ class _RestaurantPageState extends State<RestaurantPage> {
       _restaurantFuture = Future.error('restaurantId is empty');
     }
   }
+
+// --------------------
+// Funkcja otwierajaca mapy dla nawigacji
 
   Future<void> openMap(String address) async {
     String googleUrl =
@@ -65,130 +69,180 @@ class _RestaurantPageState extends State<RestaurantPage> {
     }
   }
 
+// --------------------
+//        BUILD
+// --------------------
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _restaurantFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Wystąpił błąd: ${snapshot.error}'));
-          }
-          Map<String, dynamic> restaurantData = snapshot.data ?? {};
+        appBar: const CustomAppBar(),
+        body: SingleChildScrollView(
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: _restaurantFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Wystąpił błąd: ${snapshot.error}'));
+              }
+              Map<String, dynamic> restaurantData = snapshot.data ?? {};
 
-          return Column(
-            children: [
-              // Title
-              Row(
+              return Column(
                 children: [
-                  const Spacer(),
-                  Text(
-                    restaurantData['name'] ?? "",
-                    style: const TextStyle(fontSize: 30),
+                  // --------------------
+                  //        Title
+                  // --------------------
+                  Row(
+                    children: [
+                      const Spacer(),
+                      Text(
+                        restaurantData['name'] ?? "",
+                        style: const TextStyle(fontSize: 30),
+                      ),
+                      const Spacer(),
+                    ],
                   ),
-                  const Spacer(),
-                ],
-              ),
-              // Divider
-              const Divider(
-                indent: 30,
-                endIndent: 30,
-                color: Colors.white,
-              ),
-              // Image
-              SizedBox(
-                width: 450,
-                height: 200,
-                child: FutureBuilder<String>(
-                  future: downloadURLExample(restaurantData['imageUrl'] ?? ""),
-                  builder: (context, imageSnapshot) {
-                    if (imageSnapshot.connectionState == ConnectionState.done) {
-                      if (imageSnapshot.hasData) {
-                        return Image.network(imageSnapshot.data!);
-                      } else if (imageSnapshot.hasError) {
-                        return Text(
-                            'Error loading image: ${imageSnapshot.error}');
-                      }
-                    }
-                    return const CircularProgressIndicator(); // Pokaż spinner podczas ładowania obrazu
-                  },
-                ),
-              ),
-              // Buttons
-              Row(
-                children: [
-                  const Spacer(),
-                  //Heart
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.favorite_border),
-                    iconSize: 80,
+
+                  // --------------------
+                  //        Divider
+                  // --------------------
+                  const Divider(
+                    indent: 30,
+                    endIndent: 30,
                     color: Colors.white,
                   ),
-                  const Spacer(),
-                  //Menu
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.menu_book),
-                    iconSize: 80,
-                    color: Colors.white,
+
+                  // --------------------
+                  //        Image
+                  // --------------------
+                  SizedBox(
+                    width: 450,
+                    height: 200,
+                    child: FutureBuilder<String>(
+                      future: downloadURL(restaurantData['imageUrl'] ?? ""),
+                      builder: (context, imageSnapshot) {
+                        if (imageSnapshot.connectionState ==
+                            ConnectionState.done) {
+                          if (imageSnapshot.hasData) {
+                            return Image.network(imageSnapshot.data!);
+                          } else if (imageSnapshot.hasError) {
+                            return Text(
+                                'Error loading image: ${imageSnapshot.error}');
+                          }
+                        }
+                        return const CircularProgressIndicator(); // Pokaż spinner podczas ładowania obrazu
+                      },
+                    ),
                   ),
-                  const Spacer(),
-                  //Navigation
-                  IconButton(
-                    onPressed: () {
-                      openMap(
-                          "Restauracja McDonald's, Mieczysława Medweckiego 13, 31-870 Kraków");
-                    },
-                    icon: const Icon(Icons.near_me),
-                    iconSize: 80,
-                    color: Colors.white,
+
+                  // --------------------
+                  //       Buttons
+                  // --------------------
+                  Row(
+                    children: [
+                      const Spacer(),
+                      // --------------------
+                      //        Heart
+                      // --------------------
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.favorite_border),
+                        iconSize: 80,
+                        color: Colors.white,
+                      ),
+                      const Spacer(),
+
+                      // --------------------
+                      //       MenuButton
+                      // --------------------
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.menu_book),
+                        iconSize: 80,
+                        color: Colors.white,
+                      ),
+                      const Spacer(),
+
+                      // --------------------
+                      //   NavigationButton
+                      // --------------------
+                      IconButton(
+                        onPressed: () {
+                          openMap(
+                              "Restauracja McDonald's, Mieczysława Medweckiego 13, 31-870 Kraków");
+                        },
+                        icon: const Icon(Icons.near_me),
+                        iconSize: 80,
+                        color: Colors.white,
+                      ),
+                      const Spacer(),
+                    ],
                   ),
-                  const Spacer(),
-                ],
-              ),
-              // Info
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Column(
-                  children: [
-                    Row(
+                  Row(
+                    children: [
+                      // --------------------
+                      //     Description
+                      // --------------------
+                      Expanded(
+                          child: Padding(
+                        padding: const EdgeInsets.all(30),
+                        child: Text(
+                          restaurantData['description'],
+                          overflow: TextOverflow.visible,
+                          style: const TextStyle(fontSize: 17),
+                        ),
+                      ))
+                    ],
+                  ),
+                  // --------------------
+                  //        Info
+                  // --------------------
+                  Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
                       children: [
-                        const Icon(Icons.location_on, size: 35),
-                        const SizedBox(width: 10),
-                        Text(
-                          restaurantData['address'] ?? "",
-                          style: const TextStyle(fontSize: 20),
+                        Row(
+                          children: [
+                            // --------------------
+                            //      Address
+                            // --------------------
+                            const Icon(Icons.location_on, size: 35),
+                            const SizedBox(width: 10),
+                            Text(
+                              restaurantData['address'] ?? "",
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            // --------------------
+                            //     Opening Hours
+                            // --------------------
+                            const Icon(Icons.schedule, size: 35),
+                            const SizedBox(width: 10),
+                            Text(
+                              restaurantData['openingHours'] ??
+                                  "Brak informacji",
+                              style: const TextStyle(fontSize: 20),
+                            )
+                          ],
                         )
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(Icons.schedule, size: 35),
-                        const SizedBox(width: 10),
-                        Text(
-                          restaurantData['openingHours'] ?? "",
-                          style: const TextStyle(fontSize: 20),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              const Divider(
-                indent: 30,
-                endIndent: 30,
-                color: Colors.white,
-              ),
-            ],
-          );
-        },
-      ),
-    );
+                  ),
+                  const Divider(
+                    indent: 30,
+                    endIndent: 30,
+                    color: Colors.white,
+                  ),
+                ],
+              );
+            },
+          ),
+        ));
   }
 }

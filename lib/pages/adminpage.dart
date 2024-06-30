@@ -37,6 +37,7 @@ class _AdminPageState extends State<AdminPage> {
         discountsAmountController.text =
             restaurantData['discountsAmount'].toString();
         descriptionController.text = restaurantData['description'];
+        imageUrlController.text = restaurantData['imageUrl'];
       });
     }
 
@@ -106,6 +107,7 @@ class _AdminPageState extends State<AdminPage> {
               addressController.clear();
               discountsAmountController.clear();
               descriptionController.clear();
+              imageUrlController.clear();
               Navigator.of(context).pop();
             },
             icon: const Icon(Icons.add),
