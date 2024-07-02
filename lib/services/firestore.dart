@@ -17,6 +17,21 @@ class FirestoreService {
     });
   }
 
+  Future<int> getDiscountCount(String docId) async {
+    DocumentReference restaurantDoc =
+        FirebaseFirestore.instance.collection('restaurants').doc(docId);
+    CollectionReference discounts = restaurantDoc.collection('discounts');
+    QuerySnapshot discountsSnapshot = await discounts.get();
+    return discountsSnapshot.size;
+  }
+
+  Future<void> updateDiscountCount(String docId) async {
+    int discountCount = await getDiscountCount(docId);
+    DocumentReference restaurantDoc =
+        FirebaseFirestore.instance.collection('restaurants').doc(docId);
+    await restaurantDoc.update({'discountCount': discountCount});
+  }
+
 //Read restaurant
 
   Future<DocumentSnapshot> getRestaurant(String docId) async {
@@ -48,4 +63,8 @@ class FirestoreService {
   Future<void> deleteRestaurant(String docID) {
     return restaurants.doc(docID).delete();
   }
+
+// --------------------------
+//        DISCOUNTS
+// --------------------------
 }

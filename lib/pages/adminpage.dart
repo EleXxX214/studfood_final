@@ -18,7 +18,7 @@ class _AdminPageState extends State<AdminPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  final discountsAmountController = NumberEditingTextController.integer();
+  final discountCountController = NumberEditingTextController.integer();
   final TextEditingController imageUrlController = TextEditingController();
 
 // --------------------
@@ -34,8 +34,8 @@ class _AdminPageState extends State<AdminPage> {
       firestoreService.getRestaurant(docID).then((restaurantData) {
         nameController.text = restaurantData['name'];
         addressController.text = restaurantData['address'];
-        discountsAmountController.text =
-            restaurantData['discountsAmount'].toString();
+        discountCountController.text =
+            restaurantData['discountCount'].toString();
         descriptionController.text = restaurantData['description'];
         imageUrlController.text = restaurantData['imageUrl'];
       });
@@ -60,7 +60,7 @@ class _AdminPageState extends State<AdminPage> {
                   decoration: const InputDecoration(labelText: 'Address'),
                 ),
                 TextField(
-                  controller: discountsAmountController,
+                  controller: discountCountController,
                   decoration:
                       const InputDecoration(labelText: 'Discounts Amount'),
                   keyboardType: TextInputType.number,
@@ -88,7 +88,7 @@ class _AdminPageState extends State<AdminPage> {
                 firestoreService.addRestaurant(
                   nameController.text,
                   addressController.text,
-                  discountsAmountController.number,
+                  discountCountController.number,
                   descriptionController.text,
                   imageUrlController.text,
                 );
@@ -97,7 +97,7 @@ class _AdminPageState extends State<AdminPage> {
                   docID,
                   nameController.text,
                   addressController.text,
-                  discountsAmountController.number,
+                  discountCountController.number,
                   descriptionController.text,
                   imageUrlController.text,
                 );
@@ -105,7 +105,7 @@ class _AdminPageState extends State<AdminPage> {
 
               nameController.clear();
               addressController.clear();
-              discountsAmountController.clear();
+              discountCountController.clear();
               descriptionController.clear();
               imageUrlController.clear();
               Navigator.of(context).pop();
@@ -150,10 +150,45 @@ class _AdminPageState extends State<AdminPage> {
                     document.data() as Map<String, dynamic>;
                 String restaurantName = restaurant['name'];
                 String restaurantDiscounts =
-                    restaurant['discountsAmount']?.toString() ?? "No discounts";
+                    restaurant['discountCount']?.toString() ?? "No discounts";
 
                 // --------------------
                 //Display as a list tile
+                showAlertDialog(BuildContext context) {
+                  // set up the buttons
+                  Widget cancelButton = TextButton(
+                    child: const Text("Cancel"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  );
+                  Widget deleteButton = TextButton(
+                    child: const Text("Delete"),
+                    onPressed: () {
+                      firestoreService.deleteRestaurant(docId);
+                      Navigator.of(context).pop();
+                    },
+                  );
+
+                  // set up the AlertDialog
+                  AlertDialog alert = AlertDialog(
+                    title: const Text("Delete restaurant?"),
+                    content: const Text(
+                        "Are you sure you want to delete this restaurant? This action cannot be undone."),
+                    actions: [
+                      cancelButton,
+                      deleteButton,
+                    ],
+                  );
+
+                  // show the dialog
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return alert;
+                    },
+                  );
+                }
 
                 return ListTile(
                   title: Text(restaurantName),
@@ -161,11 +196,14 @@ class _AdminPageState extends State<AdminPage> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      ElevatedButton(
+                          onPressed: () {},
+                          child: const Text("Edit discounts")),
                       // --------------------
                       //    Delete button
                       IconButton(
                         onPressed: () {
-                          firestoreService.deleteRestaurant(docId);
+                          showAlertDialog(context);
                         },
                         icon: const Icon(Icons.delete),
                       ),

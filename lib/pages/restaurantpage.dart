@@ -2,11 +2,14 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:studfood/components/custom_appbar.dart';
 import 'package:studfood/services/firestore.dart';
 import 'package:studfood/services/storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
+
+var logger = Logger();
 
 class RestaurantPage extends StatefulWidget {
   final String restaurantId;
@@ -19,22 +22,11 @@ class RestaurantPage extends StatefulWidget {
 
 class _RestaurantPageState extends State<RestaurantPage> {
   late Future<Map<String, dynamic>> _restaurantFuture;
-  late Future<String> imageUrl;
 
-// ------------------------
-// Pobieranie danych z bazy
-// ------------------------
-  Future<Map<String, dynamic>> getRestaurantData(String docId) async {
-    DocumentSnapshot<Object?> restaurantSnapshot =
-        await FirestoreService().getRestaurant(docId);
-    Map<String, dynamic> restaurantData =
-        restaurantSnapshot.data() as Map<String, dynamic>;
-    return restaurantData;
-  }
-
-// ------------------------
-// ------------------------
   @override
+  // ----------------------------------
+  //              INIT
+  // ----------------------------------
   void initState() {
     super.initState();
     print("Restaurant ID: ${widget.restaurantId}");
@@ -45,8 +37,28 @@ class _RestaurantPageState extends State<RestaurantPage> {
     }
   }
 
-// --------------------
-// Funkcja otwierajaca mapy dla nawigacji
+  // ----------------------------------
+  //      Get restaurant data
+  // ----------------------------------
+  Future<Map<String, dynamic>> getRestaurantData(String docId) async {
+    DocumentSnapshot<Object?> restaurantSnapshot =
+        await FirestoreService().getRestaurant(docId);
+    Map<String, dynamic> restaurantData =
+        restaurantSnapshot.data() as Map<String, dynamic>;
+    logger.t(restaurantData);
+    return restaurantData;
+  }
+
+  // ----------------------------------
+  //      Get discounts list
+  // ----------------------------------
+  Future<QuerySnapshot<Object?>> getDiscounts(String docId) async {
+    DocumentReference restaurantDoc =
+        FirebaseFirestore.instance.collection('restaurants').doc(docId);
+    CollectionReference discounts = restaurantDoc.collection('discounts');
+    QuerySnapshot discountsSnapshot = await discounts.get();
+    return discountsSnapshot;
+  }
 
   Future<void> openMap(String address) async {
     String googleUrl =
@@ -69,180 +81,212 @@ class _RestaurantPageState extends State<RestaurantPage> {
     }
   }
 
-// --------------------
-//        BUILD
-// --------------------
-
+// ----------------------------------
+//              BUILD
+// ----------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const CustomAppBar(),
-        body: SingleChildScrollView(
-          child: FutureBuilder<Map<String, dynamic>>(
-            future: _restaurantFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Wystąpił błąd: ${snapshot.error}'));
-              }
-              Map<String, dynamic> restaurantData = snapshot.data ?? {};
-
-              return Column(
-                children: [
-                  // --------------------
-                  //        Title
-                  // --------------------
-                  Row(
-                    children: [
-                      const Spacer(),
-                      Text(
-                        restaurantData['name'] ?? "",
-                        style: const TextStyle(fontSize: 30),
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
-
-                  // --------------------
-                  //        Divider
-                  // --------------------
-                  const Divider(
-                    indent: 30,
-                    endIndent: 30,
-                    color: Colors.white,
-                  ),
-
-                  // --------------------
-                  //        Image
-                  // --------------------
-                  SizedBox(
-                    width: 450,
-                    height: 200,
-                    child: FutureBuilder<String>(
-                      future: downloadURL(restaurantData['imageUrl'] ?? ""),
-                      builder: (context, imageSnapshot) {
-                        if (imageSnapshot.connectionState ==
-                            ConnectionState.done) {
-                          if (imageSnapshot.hasData) {
-                            return Image.network(imageSnapshot.data!);
-                          } else if (imageSnapshot.hasError) {
-                            return Text(
-                                'Error loading image: ${imageSnapshot.error}');
-                          }
-                        }
-                        return const CircularProgressIndicator(); // Pokaż spinner podczas ładowania obrazu
-                      },
+      appBar: const CustomAppBar(),
+      body: SingleChildScrollView(
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _restaurantFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Wystąpił błąd: ${snapshot.error}'));
+            }
+            Map<String, dynamic> restaurantData = snapshot.data ?? {};
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    const Spacer(),
+                    // ----------------------------------
+                    //         Restaurant name/title
+                    // ----------------------------------
+                    Text(
+                      restaurantData['name'] ?? "",
+                      style: const TextStyle(fontSize: 30),
                     ),
+                    const Spacer(),
+                  ],
+                ),
+                // ----------------------------------
+                //            ___DIVIDER___
+                // ----------------------------------
+                const Divider(
+                  indent: 30,
+                  endIndent: 30,
+                  color: Colors.white,
+                ),
+
+                // ----------------------------------
+                //            Restaurant image
+                // ----------------------------------
+                SizedBox(
+                  width: 450,
+                  height: 200,
+                  child: FutureBuilder<String>(
+                    future: downloadURL(restaurantData['imageUrl'] ?? ""),
+                    builder: (context, imageSnapshot) {
+                      if (imageSnapshot.connectionState ==
+                          ConnectionState.done) {
+                        if (imageSnapshot.hasData) {
+                          return Image.network(imageSnapshot.data!);
+                        } else if (imageSnapshot.hasError) {
+                          return Text(
+                              'Error loading image: ${imageSnapshot.error}');
+                        }
+                      }
+                      return const CircularProgressIndicator();
+                    },
                   ),
-
-                  // --------------------
-                  //       Buttons
-                  // --------------------
-                  Row(
-                    children: [
-                      const Spacer(),
-                      // --------------------
-                      //        Heart
-                      // --------------------
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.favorite_border),
-                        iconSize: 80,
-                        color: Colors.white,
-                      ),
-                      const Spacer(),
-
-                      // --------------------
-                      //       MenuButton
-                      // --------------------
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.menu_book),
-                        iconSize: 80,
-                        color: Colors.white,
-                      ),
-                      const Spacer(),
-
-                      // --------------------
-                      //   NavigationButton
-                      // --------------------
-                      IconButton(
-                        onPressed: () {
-                          openMap(
-                              "Restauracja McDonald's, Mieczysława Medweckiego 13, 31-870 Kraków");
-                        },
-                        icon: const Icon(Icons.near_me),
-                        iconSize: 80,
-                        color: Colors.white,
-                      ),
-                      const Spacer(),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      // --------------------
-                      //     Description
-                      // --------------------
-                      Expanded(
-                          child: Padding(
-                        padding: const EdgeInsets.all(30),
+                ),
+                Row(
+                  children: [
+                    // ----------------------------------
+                    //              HEART ICON
+                    // ----------------------------------
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.favorite_border),
+                      iconSize: 80,
+                      color: Colors.white,
+                    ),
+                    // ----------------------------------
+                    //              MENU ICON
+                    // ----------------------------------
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.menu_book),
+                      iconSize: 80,
+                      color: Colors.white,
+                    ),
+                    // ----------------------------------
+                    //          NAVIGATION ICON
+                    // ----------------------------------
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {
+                        openMap(
+                            "Restauracja McDonald's, Mieczysława Medweckiego 13, 31-870 Kraków");
+                      },
+                      icon: const Icon(Icons.near_me),
+                      iconSize: 80,
+                      color: Colors.white,
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+                Row(
+                  children: [
+                    // ----------------------------------
+                    //              DESCRIPTION
+                    // ----------------------------------
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 32),
                         child: Text(
-                          restaurantData['description'],
+                          restaurantData['description'] ?? "",
                           overflow: TextOverflow.visible,
                           style: const TextStyle(fontSize: 17),
                         ),
-                      ))
+                      ),
+                    )
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          // ----------------------------------
+                          //           ADDRESS/ICON
+                          // ----------------------------------
+                          const Icon(Icons.location_on, size: 35),
+                          const SizedBox(width: 10),
+                          Text(
+                            restaurantData['address'] ?? "",
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          // ----------------------------------
+                          //          OPENING HOURS/ICON
+                          // ----------------------------------
+                          const Icon(Icons.schedule, size: 35),
+                          const SizedBox(width: 10),
+                          Text(
+                            restaurantData['openingHours'] ?? "Brak informacji",
+                            style: const TextStyle(fontSize: 20),
+                          )
+                        ],
+                      ),
                     ],
                   ),
-                  // --------------------
-                  //        Info
-                  // --------------------
-                  Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            // --------------------
-                            //      Address
-                            // --------------------
-                            const Icon(Icons.location_on, size: 35),
-                            const SizedBox(width: 10),
-                            Text(
-                              restaurantData['address'] ?? "",
-                              style: const TextStyle(fontSize: 20),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            // --------------------
-                            //     Opening Hours
-                            // --------------------
-                            const Icon(Icons.schedule, size: 35),
-                            const SizedBox(width: 10),
-                            Text(
-                              restaurantData['openingHours'] ??
-                                  "Brak informacji",
-                              style: const TextStyle(fontSize: 20),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  const Divider(
-                    indent: 30,
-                    endIndent: 30,
-                    color: Colors.white,
-                  ),
-                ],
-              );
-            },
-          ),
-        ));
+                ),
+                // ----------------------------------
+                //            ___DIVIDER___
+                // ----------------------------------
+                const Divider(
+                  indent: 30,
+                  endIndent: 30,
+                  color: Colors.white,
+                ),
+                // ----------------------------------
+                //          DISCOUNTS LIST
+                // ----------------------------------
+                FutureBuilder<QuerySnapshot>(
+                  future: getDiscounts(widget.restaurantId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Center(child: Text('Obecnie brak zniżek'));
+                    }
+                    var discounts = snapshot.data!.docs;
+                    // ----------------------------------
+                    //           LISTVIEW.BUILDER
+                    // ----------------------------------
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: discounts.length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> discount =
+                            discounts[index].data() as Map<String, dynamic>;
+                        // ----------------------------------
+                        //             LIST TILE
+                        // ----------------------------------
+                        return ListTile(
+                          title: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(discount['discount'] ?? ""),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 }

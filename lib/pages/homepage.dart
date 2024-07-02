@@ -15,6 +15,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<int> getDiscountCount(String docId) async {
+    // ----------------------------------
+    // Get discounts collection reference
+    // ----------------------------------
+    DocumentReference restaurantDoc =
+        FirebaseFirestore.instance.collection('restaurants').doc(docId);
+    CollectionReference discounts = restaurantDoc.collection('discounts');
+    QuerySnapshot discountsSnapshot = await discounts.get();
+    return discountsSnapshot.size;
+  }
+
+  // ----------------------------------
+  // Update discount count
+  // ----------------------------------
+  Future<void> updateDiscountCount(String docId) async {
+    int discountCount = await getDiscountCount(docId);
+    DocumentReference restaurantDoc =
+        FirebaseFirestore.instance.collection('restaurants').doc(docId);
+    await restaurantDoc.update({'discountCount': discountCount});
+  }
+
+  // ----------------------------------
+  //               BUILD
+  // ----------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,11 +57,15 @@ class _HomePageState extends State<HomePage> {
                 String docId = document.id;
                 Map<String, dynamic> restaurant =
                     document.data() as Map<String, dynamic>;
-
+                // Update discount count
+                updateDiscountCount(docId);
+                // ----------------------------------
+                //             LIST TILE
+                // ----------------------------------
                 return CustomListTile(
                   name: restaurant['name'],
                   address: restaurant['address'],
-                  discountsAmount: restaurant['discountsAmount'],
+                  discountsAmount: restaurant['discountCount'],
                   onTap: () {
                     Navigator.pushNamed(
                       context,
