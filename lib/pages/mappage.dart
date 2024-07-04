@@ -15,7 +15,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(title: "Map"),
       body: GoogleMap(
         initialCameraPosition: const CameraPosition(target: krakow, zoom: 16),
         markers: {

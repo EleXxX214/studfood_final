@@ -17,6 +17,14 @@ class FirestoreService {
     });
   }
 
+  Future<Map<String, dynamic>?> getDiscount(String docId) async {
+    DocumentReference restaurantDoc =
+        FirebaseFirestore.instance.collection('restaurants').doc(docId);
+    DocumentSnapshot<Map<String, dynamic>> discountDoc =
+        await restaurantDoc.collection('discounts').doc().get();
+    return discountDoc.data();
+  }
+
   Future<int> getDiscountCount(String docId) async {
     DocumentReference restaurantDoc =
         FirebaseFirestore.instance.collection('restaurants').doc(docId);

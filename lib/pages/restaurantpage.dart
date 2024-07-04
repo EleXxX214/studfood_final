@@ -87,7 +87,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(title: "StudFood"),
       body: SingleChildScrollView(
         child: FutureBuilder<Map<String, dynamic>>(
           future: _restaurantFuture,

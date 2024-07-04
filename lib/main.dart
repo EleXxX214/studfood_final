@@ -6,6 +6,7 @@ import 'components/custom_theme.dart';
 import 'package:studfood/pages/restaurantpage.dart';
 import 'package:studfood/pages/adminpage.dart';
 import 'package:studfood/pages/mappage.dart';
+import 'package:studfood/pages/discountspage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,12 @@ class MainApp extends StatelessWidget {
             return MaterialPageRoute(builder: (context) => const AdminPage());
           case 'MapPage':
             return MaterialPageRoute(builder: (context) => const MapPage());
+          case 'DiscountsPage':
+            final String docId = settings.arguments as String;
+            return MaterialPageRoute(
+                builder: (context) => DiscountsPage(
+                      docId: docId,
+                    ));
           default:
             return null;
         }

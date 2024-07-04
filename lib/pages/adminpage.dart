@@ -124,7 +124,9 @@ class _AdminPageState extends State<AdminPage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           onPressed: () => openAddBox(), child: const Icon(Icons.add)),
-      appBar: const CustomAppBar(),
+      appBar: const CustomAppBar(
+        title: "Admin Page",
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: firestoreService.getRestaurants(),
         builder: (context, snapshot) {
@@ -197,7 +199,10 @@ class _AdminPageState extends State<AdminPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, 'DiscountsPage',
+                                arguments: docId);
+                          },
                           child: const Text("Edit discounts")),
                       // --------------------
                       //    Delete button
