@@ -16,15 +16,13 @@ class DiscountsPage extends StatefulWidget {
 }
 
 class _DiscountsPageState extends State<DiscountsPage> {
+// ----------------------------------
+//              INIT
+// ----------------------------------
+
   final TextEditingController discountController = TextEditingController();
 
-  Future<QuerySnapshot<Object?>> getDiscounts(String docId) async {
-    DocumentReference restaurantDoc =
-        FirebaseFirestore.instance.collection('restaurants').doc(docId);
-    CollectionReference discounts = restaurantDoc.collection('discounts');
-    QuerySnapshot discountsSnapshot = await discounts.get();
-    return discountsSnapshot;
-  }
+  final FirestoreService firestoreService = FirestoreService();
 
   void openAddBox({String? discountId, required String docId}) {
     logger.w(discountId);
@@ -58,15 +56,41 @@ class _DiscountsPageState extends State<DiscountsPage> {
                   ),
                 ),
               ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    if (discountId == null) {
+                      firestoreService.addDiscount(
+                          discountController.text, docId);
+                      setState(() {});
+                    } else {
+                      firestoreService.updateDiscount(
+                          docId, discountId, discountController.text);
+                      setState(() {});
+                    }
+
+                    discountController.clear();
+                    Navigator.of(context).pop();
+                  },
+                  icon: Icon(discountId == null ? Icons.add : Icons.edit),
+                ),
+              ],
             ));
   }
+
+// ----------------------------------
+//              BUILD
+// ----------------------------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          onPressed: () => openAddBox(docId: widget.docId),
+          child: const Icon(Icons.add)),
       appBar: const CustomAppBar(title: "Edit discounts"),
       body: FutureBuilder<QuerySnapshot>(
-        future: getDiscounts(widget.docId),
+        future: firestoreService.getDiscounts(widget.docId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -87,6 +111,43 @@ class _DiscountsPageState extends State<DiscountsPage> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: discounts.length,
             itemBuilder: (context, index) {
+              showAlertDialog(BuildContext context, String discountId) {
+                // set up the buttons
+                Widget cancelButton = TextButton(
+                  child: const Text("Cancel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                );
+                Widget deleteButton = TextButton(
+                  child: const Text("Delete"),
+                  onPressed: () {
+                    firestoreService.deleteDiscount(widget.docId, discountId);
+                    setState(() {});
+                    Navigator.of(context).pop();
+                  },
+                );
+
+                // set up the AlertDialog
+                AlertDialog alert = AlertDialog(
+                  title: const Text("Delete discount?"),
+                  content: const Text(
+                      "Are you sure you want to delete this discount? This action cannot be undone."),
+                  actions: [
+                    cancelButton,
+                    deleteButton,
+                  ],
+                );
+
+                // show the dialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return alert;
+                  },
+                );
+              }
+
               DocumentSnapshot discount = discounts[index];
               String discountId = discount.id;
               // ----------------------------------
@@ -97,14 +158,19 @@ class _DiscountsPageState extends State<DiscountsPage> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // --------------------
                     //    Delete button
+                    // --------------------
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showAlertDialog(context, discountId);
+                      },
                       icon: const Icon(Icons.delete),
                     ),
 
                     // --------------------
                     //    Edit button
+                    // --------------------
                     IconButton(
                       onPressed: () {
                         openAddBox(discountId: discountId, docId: widget.docId);
