@@ -8,6 +8,20 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateTime today = DateTime.now();
+
+    var weekday = today.weekday;
+
+    List<String> weekdays = [
+      'Poniedziałek',
+      'Wtorek',
+      'Środa',
+      'Czwartek',
+      'Piątek',
+      'Sobota',
+      'Niedziela'
+    ];
+
     return AppBar(
       backgroundColor: Colors.grey[850],
       centerTitle: true,
@@ -15,6 +29,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Row(
           children: [
+            Text(weekdays[weekday - 1]),
             cityPickerButton(context),
           ],
         ),

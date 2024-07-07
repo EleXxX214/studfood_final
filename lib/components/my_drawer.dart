@@ -25,7 +25,9 @@ class MyDrawer extends StatelessWidget {
             ),
             ListTile(
               title: const Text("Kontakt"),
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, 'ContactPage');
+              },
             ),
             ListTile(
               title: const Text("Admin Panel"),
