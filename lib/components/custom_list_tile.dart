@@ -4,6 +4,7 @@ class CustomListTile extends StatelessWidget {
   final String name;
   final String address;
   final int? discountsAmount;
+  final String openingHour;
   final VoidCallback onTap;
 
   const CustomListTile({
@@ -11,6 +12,7 @@ class CustomListTile extends StatelessWidget {
     required this.name,
     required this.address,
     required this.discountsAmount,
+    required this.openingHour,
     required this.onTap,
   });
 
@@ -29,13 +31,13 @@ class CustomListTile extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              const Positioned(
+              Positioned(
                 top: 0,
                 right: 0,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         // --------------------
                         //  ICONY TYPU JEDZENIA
@@ -43,16 +45,16 @@ class CustomListTile extends StatelessWidget {
                         Icon(Icons.ramen_dining, size: 30),
                       ],
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Row(
                       children: [
                         // --------------------
                         //  ICONA CZASU
-                        Icon(Icons.access_time),
-                        Text("8:00 - 20:00"),
+                        const Icon(Icons.access_time),
+                        Text(openingHour),
                       ],
                     ),
-                    Row(
+                    const Row(
                       children: [
                         // --------------------
                         //  ICONA ODLEGLOSCI

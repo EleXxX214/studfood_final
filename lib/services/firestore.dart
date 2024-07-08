@@ -13,22 +13,34 @@ class FirestoreService {
 // ADD_RESTAURANT
 //---------------------
 
-  Future<void> addRestaurant(String name, String address, num? discountsAmount,
-      String description, String imageUrl) {
+  Future<void> addRestaurant(
+    String name,
+    String address,
+    num? discountsAmount,
+    String imageUrl,
+    String description,
+    String monday,
+    String tuesday,
+    String wednesday,
+    String thursday,
+    String friday,
+    String saturday,
+    String sunday,
+  ) {
     return restaurants.add({
       'name': name,
       'address': address,
       'discountsAmount': discountsAmount,
-      'description': description,
       'imageUrl': imageUrl,
+      'description': description,
+      'monday': monday,
+      'tuesday': tuesday,
+      'wednesday': wednesday,
+      'thursday': thursday,
+      'friday': friday,
+      'saturday': saturday,
+      'sunday': sunday,
     });
-  }
-
-  Future<void> addDiscount(String discount, String docId) {
-    return restaurants
-        .doc(docId)
-        .collection("discounts")
-        .add({'discount': discount});
   }
 
 // --------------------------
@@ -52,14 +64,34 @@ class FirestoreService {
 //  UPDATE_RESTAURANTS
 // --------------------------
 
-  Future<void> updateRestaurant(String docID, String newName, String newAddress,
-      num? newDiscountsAmount, String newDescription, String newImageUrl) {
+  Future<void> updateRestaurant(
+    String docID,
+    String newName,
+    String newAddress,
+    num? newDiscountsAmount,
+    String newDescription,
+    String newImageUrl,
+    String monday,
+    String tuesday,
+    String wednesday,
+    String thursday,
+    String friday,
+    String saturday,
+    String sunday,
+  ) {
     return restaurants.doc(docID).update({
       'name': newName,
       'address': newAddress,
       'discountsAmount': newDiscountsAmount,
       'description': newDescription,
       'imageUrl': newImageUrl,
+      'monday': monday,
+      'tuesday': tuesday,
+      'wednesday': wednesday,
+      'thursday': thursday,
+      'friday': friday,
+      'saturday': saturday,
+      'sunday': sunday,
     });
   }
 
@@ -92,6 +124,17 @@ class FirestoreService {
 //        DISCOUNTS
 // --------------------------
 //____________________________
+
+// --------------------------
+//        ADD DISCOUNT
+// --------------------------
+
+  Future<void> addDiscount(String discount, String docId) {
+    return restaurants
+        .doc(docId)
+        .collection("discounts")
+        .add({'discount': discount});
+  }
 
 // --------------------------
 //        GET DISCOUNTS

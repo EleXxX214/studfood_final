@@ -15,18 +15,33 @@ class AdminPage extends StatefulWidget {
 class _AdminPageState extends State<AdminPage> {
   // --------------------
   //  TextControllers
+  // --------------------
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final discountCountController = NumberEditingTextController.integer();
   final TextEditingController imageUrlController = TextEditingController();
 
+  // --------------------------------
+  //  TextControllers opening hours
+  // -------------------------------
+
+  final TextEditingController mondayController = TextEditingController();
+  final TextEditingController tuesdayController = TextEditingController();
+  final TextEditingController wednesdayController = TextEditingController();
+  final TextEditingController thursdayController = TextEditingController();
+  final TextEditingController fridayController = TextEditingController();
+  final TextEditingController saturdayController = TextEditingController();
+  final TextEditingController sundayController = TextEditingController();
+
 // --------------------
 //  FirestoreService
+// --------------------
   final FirestoreService firestoreService = FirestoreService();
 
 // --------------------
 //       openAddBox
+// --------------------
   void openAddBox({String? docID}) {
     //Jeżeli edytuje to pobiera dane edytującej restauracji
     if (docID != null) {
@@ -76,6 +91,37 @@ class _AdminPageState extends State<AdminPage> {
                   controller: imageUrlController,
                   decoration: const InputDecoration(labelText: 'imageUrl'),
                 ),
+                const Divider(),
+                const Text("Opening Hours"),
+                const Divider(),
+                TextField(
+                  controller: mondayController,
+                  decoration: const InputDecoration(labelText: 'Monday'),
+                ),
+                TextField(
+                  controller: tuesdayController,
+                  decoration: const InputDecoration(labelText: 'Tuesday'),
+                ),
+                TextField(
+                  controller: wednesdayController,
+                  decoration: const InputDecoration(labelText: 'Wednesday'),
+                ),
+                TextField(
+                  controller: thursdayController,
+                  decoration: const InputDecoration(labelText: 'Thursday'),
+                ),
+                TextField(
+                  controller: fridayController,
+                  decoration: const InputDecoration(labelText: 'Friday'),
+                ),
+                TextField(
+                  controller: saturdayController,
+                  decoration: const InputDecoration(labelText: 'Saturday'),
+                ),
+                TextField(
+                  controller: sundayController,
+                  decoration: const InputDecoration(labelText: 'Sunday'),
+                ),
               ],
             ),
           ),
@@ -91,6 +137,13 @@ class _AdminPageState extends State<AdminPage> {
                   discountCountController.number,
                   descriptionController.text,
                   imageUrlController.text,
+                  mondayController.text,
+                  tuesdayController.text,
+                  wednesdayController.text,
+                  thursdayController.text,
+                  fridayController.text,
+                  saturdayController.text,
+                  sundayController.text,
                 );
               } else {
                 firestoreService.updateRestaurant(
@@ -100,6 +153,13 @@ class _AdminPageState extends State<AdminPage> {
                   discountCountController.number,
                   descriptionController.text,
                   imageUrlController.text,
+                  mondayController.text,
+                  tuesdayController.text,
+                  wednesdayController.text,
+                  thursdayController.text,
+                  fridayController.text,
+                  saturdayController.text,
+                  sundayController.text,
                 );
               }
 
