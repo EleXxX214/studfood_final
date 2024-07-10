@@ -18,10 +18,11 @@ class HomePage extends StatefulWidget {
 Logger logger = Logger();
 
 class _HomePageState extends State<HomePage> {
+  String searchQuery = "";
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+
   Future<int> getDiscountCount(String docId) async {
-    // ----------------------------------
-    // Get discounts collection reference
-    // ----------------------------------
     DocumentReference restaurantDoc =
         FirebaseFirestore.instance.collection('restaurants').doc(docId);
     CollectionReference discounts = restaurantDoc.collection('discounts');
@@ -29,9 +30,6 @@ class _HomePageState extends State<HomePage> {
     return discountsSnapshot.size;
   }
 
-  // ----------------------------------
-  // Update discount count
-  // ----------------------------------
   Future<void> updateDiscountCount(String docId) async {
     int discountCount = await getDiscountCount(docId);
     DocumentReference restaurantDoc =
@@ -39,18 +37,21 @@ class _HomePageState extends State<HomePage> {
     await restaurantDoc.update({'discountCount': discountCount});
   }
 
-  // ----------------------------------
-  //               BUILD
-  // ----------------------------------
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocus.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     String day = "";
 
     DateTime today = DateTime.now();
-
     var weekday = today.weekday;
 
-    if (weekday == 0) day = "sunday";
+    if (weekday == 7) day = "sunday";
     if (weekday == 1) day = "monday";
     if (weekday == 2) day = "tuesday";
     if (weekday == 3) day = "wednesday";
@@ -61,43 +62,89 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: const MyAppBar(),
       drawer: const MyDrawer(),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirestoreService().getRestaurants(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List restaurantList = snapshot.data!.docs;
-
-            return ListView.builder(
-              itemCount: restaurantList.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot document = restaurantList[index];
-                String docId = document.id;
-                Map<String, dynamic> restaurant =
-                    document.data() as Map<String, dynamic>;
-                // Update discount count
-                updateDiscountCount(docId);
-                // ----------------------------------
-                //             LIST TILE
-                // ----------------------------------
-                return CustomListTile(
-                  name: restaurant['name'],
-                  address: restaurant['address'],
-                  discountsAmount: restaurant['discountCount'],
-                  openingHour: restaurant[day] ?? "No data",
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      'RestaurantPage',
-                      arguments: docId,
-                    );
-                  },
-                );
-              },
-            );
-          } else {
-            return const Center(child: CircularProgressIndicator());
+      body: GestureDetector(
+        onTap: () {
+          // Unfocus search field when tapping outside
+          if (_searchFocus.hasFocus) {
+            _searchFocus.unfocus();
           }
         },
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _searchController,
+                focusNode: _searchFocus,
+                autofocus: false,
+                decoration: InputDecoration(
+                  hintText: 'Wyszukaj restauracje...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        searchQuery = "";
+                      });
+                    },
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value.toLowerCase();
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirestoreService().getRestaurants(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<DocumentSnapshot> restaurantList = snapshot.data!.docs;
+
+                    if (searchQuery.isNotEmpty) {
+                      restaurantList = restaurantList.where((doc) {
+                        String name =
+                            (doc.data() as Map<String, dynamic>)['name']
+                                .toString()
+                                .toLowerCase();
+                        return name.contains(searchQuery);
+                      }).toList();
+                    }
+
+                    return ListView.builder(
+                      itemCount: restaurantList.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot document = restaurantList[index];
+                        String docId = document.id;
+                        Map<String, dynamic> restaurant =
+                            document.data() as Map<String, dynamic>;
+                        updateDiscountCount(docId);
+                        return CustomListTile(
+                          name: restaurant['name'],
+                          address: restaurant['address'],
+                          discountsAmount: restaurant['discountCount'],
+                          openingHour: restaurant[day] ?? "No data",
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              'RestaurantPage',
+                              arguments: docId,
+                            );
+                          },
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
