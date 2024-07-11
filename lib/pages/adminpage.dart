@@ -53,6 +53,13 @@ class _AdminPageState extends State<AdminPage> {
             restaurantData['discountCount'].toString();
         descriptionController.text = restaurantData['description'];
         imageUrlController.text = restaurantData['imageUrl'];
+        mondayController.text = restaurantData['monday'];
+        tuesdayController.text = restaurantData['tuesday'];
+        wednesdayController.text = restaurantData['wednesday'];
+        thursdayController.text = restaurantData['thursday'];
+        fridayController.text = restaurantData['friday'];
+        saturdayController.text = restaurantData['saturday'];
+        sundayController.text = restaurantData['sunday'];
       });
     }
 
@@ -181,6 +188,21 @@ class _AdminPageState extends State<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    Future<int> getDiscountCount(String docId) async {
+      DocumentReference restaurantDoc =
+          FirebaseFirestore.instance.collection('restaurants').doc(docId);
+      CollectionReference discounts = restaurantDoc.collection('discounts');
+      QuerySnapshot discountsSnapshot = await discounts.get();
+      return discountsSnapshot.size;
+    }
+
+    Future<void> updateDiscountCount(String docId) async {
+      int discountCount = await getDiscountCount(docId);
+      DocumentReference restaurantDoc =
+          FirebaseFirestore.instance.collection('restaurants').doc(docId);
+      await restaurantDoc.update({'discountCount': discountCount});
+    }
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           onPressed: () => openAddBox(), child: const Icon(Icons.add)),
@@ -203,7 +225,7 @@ class _AdminPageState extends State<AdminPage> {
 
                 DocumentSnapshot document = restaurantList[index];
                 String docId = document.id;
-
+                updateDiscountCount(docId);
                 // --------------------
                 //Getting restaurant parameters
 
