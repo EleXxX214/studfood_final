@@ -173,8 +173,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                     const Spacer(),
                     IconButton(
                       onPressed: () {
-                        openMap(
-                            "Restauracja McDonald's, Mieczysława Medweckiego 13, 31-870 Kraków");
+                        openMap("${restaurantData['address']}");
                       },
                       icon: const Icon(Icons.near_me),
                       iconSize: 80,
@@ -212,10 +211,12 @@ class _RestaurantPageState extends State<RestaurantPage> {
                           // ----------------------------------
                           const Icon(Icons.location_on, size: 35),
                           const SizedBox(width: 10),
-                          Text(
-                            restaurantData['address'] ?? "",
-                            style: const TextStyle(fontSize: 20),
-                          ),
+                          Expanded(
+                            child: Text(
+                              restaurantData['address'] ?? "",
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          )
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -226,9 +227,47 @@ class _RestaurantPageState extends State<RestaurantPage> {
                           // ----------------------------------
                           const Icon(Icons.schedule, size: 35),
                           const SizedBox(width: 10),
-                          Text(
-                            restaurantData['openingHours'] ?? "Brak informacji",
-                            style: const TextStyle(fontSize: 20),
+                          Row(
+                            children: [
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    for (var i = 0; i < 7; i++)
+                                      Text(
+                                        [
+                                          'Poniedziałek',
+                                          'Wtorek',
+                                          'Środa',
+                                          'Czwartek',
+                                          'Piątek',
+                                          'Sobota',
+                                          'Niedziela'
+                                        ][i],
+                                        style: const TextStyle(fontSize: 20),
+                                      ),
+                                  ]),
+                              Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    for (var i = 0; i < 7; i++)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 30.0),
+                                        child: Text(
+                                          "${restaurantData[[
+                                                'monday',
+                                                'tuesday',
+                                                'wednesday',
+                                                'thursday',
+                                                'friday',
+                                                'saturday',
+                                                'sunday'
+                                              ][i]] ?? 'No data'}",
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                      )
+                                  ])
+                            ],
                           )
                         ],
                       ),

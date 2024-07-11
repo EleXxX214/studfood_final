@@ -195,7 +195,6 @@ class _AdminPageState extends State<AdminPage> {
 
             // --------------------
             //    ListView builder
-
             return ListView.builder(
               itemCount: restaurantList.length,
               itemBuilder: (context, index) {
@@ -210,9 +209,8 @@ class _AdminPageState extends State<AdminPage> {
 
                 Map<String, dynamic> restaurant =
                     document.data() as Map<String, dynamic>;
+
                 String restaurantName = restaurant['name'];
-                String restaurantDiscounts =
-                    restaurant['discountCount']?.toString() ?? "No discounts";
 
                 // --------------------
                 //Display as a list tile
@@ -254,7 +252,7 @@ class _AdminPageState extends State<AdminPage> {
 
                 return ListTile(
                   title: Text(restaurantName),
-                  subtitle: Text(restaurantDiscounts),
+                  subtitle: Text(restaurant['discountCount'].toString()),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

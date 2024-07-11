@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                   hintText: 'Wyszukaj restauracje...',
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.delete),
+                    icon: const Icon(Icons.clear),
                     onPressed: () {
                       _searchController.clear();
                       setState(() {
