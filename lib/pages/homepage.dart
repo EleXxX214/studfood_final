@@ -61,6 +61,10 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: const MyAppBar(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, "MapPage"),
+        child: const Icon(Icons.map),
+      ),
       drawer: const MyDrawer(),
       body: GestureDetector(
         onTap: () {
