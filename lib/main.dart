@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:studfood/firebase_options.dart';
 import 'package:studfood/pages/homepage.dart';
-import 'components/custom_theme.dart';
+//import 'components/custom_theme.dart';
 import 'package:studfood/pages/restaurantpage.dart';
 import 'package:studfood/pages/adminpage.dart';
 import 'package:studfood/pages/mappage.dart';
@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.customDarkTheme(),
+      //theme: AppTheme.customDarkTheme(),
       home: const HomePage(),
       onGenerateRoute: (settings) {
         switch (settings.name) {

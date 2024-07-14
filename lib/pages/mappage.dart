@@ -98,8 +98,10 @@ class _MapPageState extends State<MapPage> {
       markerId: MarkerId(id),
       position: location,
       infoWindow: InfoWindow(
-        title: name,
-      ),
+          title: name,
+          onTap: () {
+            Navigator.pushNamed(context, "RestaurantPage", arguments: id);
+          }),
       icon: markerIcon,
     );
     _markers[id] = marker;

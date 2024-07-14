@@ -23,7 +23,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     ];
 
     return AppBar(
-      backgroundColor: Colors.grey[850],
+      // backgroundColor: Colors.grey[850],
       centerTitle: true,
       title: const Text("StudFooD"),
       actions: [
