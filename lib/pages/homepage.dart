@@ -5,6 +5,7 @@ import 'package:studfood/components/main_appbar.dart';
 import 'package:studfood/components/my_drawer.dart';
 import 'package:studfood/components/custom_list_tile.dart';
 import 'package:studfood/services/firestore.dart';
+import 'package:studfood/components/bubble.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -100,6 +101,9 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
               ),
+            ),
+            const Row(
+              children: [Bubble(), Bubble(), Bubble(), Bubble(), Bubble()],
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(

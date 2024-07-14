@@ -27,7 +27,7 @@ class CustomListTile extends StatelessWidget {
           height: 100,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.grey[350]?.withOpacity(0.1),
+            color: Colors.grey[700]?.withOpacity(0.1),
           ),
           child: Stack(
             children: [
