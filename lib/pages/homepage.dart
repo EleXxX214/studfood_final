@@ -102,8 +102,23 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-            const Row(
-              children: [Bubble(), Bubble(), Bubble(), Bubble(), Bubble()],
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                  Bubble(),
+                ],
+              ),
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(

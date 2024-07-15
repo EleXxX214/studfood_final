@@ -7,23 +7,13 @@ class Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 60,
-      height: 60,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          shape: BoxShape.circle,
+    return Container(
+      child: FilterChip(
+        onSelected: (_) {},
+        avatar: const CircleAvatar(
+          child: Icon(Icons.fastfood),
         ),
-        child: const Padding(
-          padding: EdgeInsets.only(top: 5.0),
-          child: Column(
-            children: [
-              Icon(Icons.map),
-              Text("Burgery"),
-            ],
-          ),
-        ),
+        label: const Text('Burgery'),
       ),
     );
   }
