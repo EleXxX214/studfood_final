@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     String day = "";
-
+    FirestoreService().getFilters();
     DateTime today = DateTime.now();
     var weekday = today.weekday;
 
@@ -102,23 +102,31 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-            SizedBox(
-              height: 40,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                  Bubble(),
-                ],
-              ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: SizedBox(
+                  height: 50,
+                  child: FutureBuilder<QuerySnapshot>(
+                    future: FirestoreService().getFilters(),
+                    builder: (context, snapshot) {
+                      final filters = snapshot.data!.docs;
+
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: filters.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Chip(
+                              label: Text(filters[index].id),
+                              onDeleted: () {},
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  )),
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(

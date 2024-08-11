@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FirestoreService {
   final CollectionReference restaurants =
       FirebaseFirestore.instance.collection("restaurants");
+
+  final CollectionReference filters =
+      FirebaseFirestore.instance.collection("filters");
 //____________________________
 //---------------------
 //    RESTAURANTS
@@ -179,5 +182,14 @@ class FirestoreService {
     int discountCount = await getDiscountCount(docId);
     DocumentReference restaurantDoc = restaurants.doc(docId);
     await restaurantDoc.update({'discountCount': discountCount});
+  }
+
+// --------------------------
+//        GET FILTERS
+// --------------------------
+
+  Future<QuerySnapshot<Object?>> getFilters() async {
+    QuerySnapshot filtersSnapshot = await filters.get();
+    return filtersSnapshot;
   }
 }
