@@ -5,7 +5,6 @@ import 'package:studfood/components/main_appbar.dart';
 import 'package:studfood/components/my_drawer.dart';
 import 'package:studfood/components/custom_list_tile.dart';
 import 'package:studfood/services/firestore.dart';
-import 'package:studfood/components/bubble.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -17,6 +16,8 @@ class HomePage extends StatefulWidget {
 }
 
 Logger logger = Logger();
+
+List<String> selectedFilters = [];
 
 class _HomePageState extends State<HomePage> {
   String searchQuery = "";
@@ -109,22 +110,35 @@ class _HomePageState extends State<HomePage> {
                   child: FutureBuilder<QuerySnapshot>(
                     future: FirestoreService().getFilters(),
                     builder: (context, snapshot) {
-                      final filters = snapshot.data!.docs;
-
-                      return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: filters.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Chip(
-                              label: Text(filters[index].id),
-                              onDeleted: () {},
-                            ),
-                          );
-                        },
-                      );
+                      if (snapshot.hasData) {
+                        final filters = snapshot.data!.docs;
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: filters.length,
+                          itemBuilder: (context, index) {
+                            final filter = filters[index].id;
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: FilterChip(
+                                selected: selectedFilters.contains(filter),
+                                onSelected: (bool value) {
+                                  setState(() {
+                                    if (value) {
+                                      selectedFilters.add(filter);
+                                    } else {
+                                      selectedFilters.remove(filter);
+                                    }
+                                  });
+                                },
+                                label: Text(filters[index].id),
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
                     },
                   )),
             ),
@@ -145,6 +159,19 @@ class _HomePageState extends State<HomePage> {
                       }).toList();
                     }
 
+                    // Filtrowanie na podstawie wybranych filtrów
+                    if (selectedFilters.isNotEmpty) {
+                      restaurantList = restaurantList.where((doc) {
+                        String? filter =
+                            (doc.data() as Map<String, dynamic>)['filter1'];
+
+                        // Sprawdzenie, czy filter nie jest null
+                        if (filter != null) {
+                          return selectedFilters.contains(filter);
+                        }
+                        return false;
+                      }).toList();
+                    }
                     return ListView.builder(
                       itemCount: restaurantList.length,
                       itemBuilder: (context, index) {
