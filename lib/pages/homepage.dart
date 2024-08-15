@@ -80,6 +80,9 @@ class _HomePageState extends State<HomePage> {
             children: [
               Column(
                 children: [
+                  //-------------------------------------------
+                  //                 SEARCH BAR
+                  //-------------------------------------------
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(
@@ -106,6 +109,9 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
+                  //-------------------------------------------
+                  //            FOOD FILTER LIST
+                  //-------------------------------------------
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: SizedBox(
@@ -151,6 +157,9 @@ class _HomePageState extends State<HomePage> {
                           },
                         )),
                   ),
+                  //-------------------------------------------
+                  //           RESTAURANT IMAGE
+                  //-------------------------------------------
                   Expanded(
                     child: Stack(children: [
                       Positioned.fill(
@@ -159,13 +168,18 @@ class _HomePageState extends State<HomePage> {
                           fit: BoxFit.cover,
                         ),
                       ),
+                      //-------------------------------------------
+                      //-------------------------------------------
+                      //-------------------------------------------
                       StreamBuilder<QuerySnapshot>(
                         stream: FirestoreService().getRestaurants(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<DocumentSnapshot> restaurantList =
                                 snapshot.data!.docs;
-
+                            //-------------------------------------------
+                            //              RESTAURANT SEARCH
+                            //-------------------------------------------
                             if (searchQuery.isNotEmpty) {
                               restaurantList = restaurantList.where((doc) {
                                 String name =
@@ -175,8 +189,9 @@ class _HomePageState extends State<HomePage> {
                                 return name.contains(searchQuery);
                               }).toList();
                             }
-
-                            // Filtrowanie na podstawie wybranych filtrów
+                            //-------------------------------------------
+                            //              FOOD FILTERING
+                            //-------------------------------------------
                             if (selectedFilters.isNotEmpty) {
                               restaurantList = restaurantList.where((doc) {
                                 String? filter = (doc.data()
@@ -189,6 +204,11 @@ class _HomePageState extends State<HomePage> {
                                 return false;
                               }).toList();
                             }
+
+                            //-------------------------------------------
+                            //        RESTAURANT TILES BUILDER
+                            //-------------------------------------------
+
                             return ListView.builder(
                               itemCount: restaurantList.length,
                               itemBuilder: (context, index) {
