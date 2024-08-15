@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:studfood/components/custom_theme.dart';
 import 'package:studfood/firebase_options.dart';
 import 'package:studfood/pages/homepage.dart';
 //import 'components/custom_theme.dart';
@@ -22,7 +23,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      //theme: AppTheme.customDarkTheme(),
+      theme: AppTheme.customTheme(),
       home: const HomePage(),
       onGenerateRoute: (settings) {
         switch (settings.name) {

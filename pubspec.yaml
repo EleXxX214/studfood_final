@@ -32,3 +32,8 @@ flutter:
     uses-material-design: true
     assets:
         - assets/map/restaurant_pin.png
+        - assets/photos/photo.jpg
+        - assets/backgrounds/b1.webp
+        - assets/backgrounds/paper.webp
+        - assets/backgrounds/burger.webp
+        - assets/backgrounds/fota1.jpg

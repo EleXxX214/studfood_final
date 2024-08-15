@@ -24,42 +24,31 @@ class CustomListTile extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(8.0),
-          height: 100,
+          height: 300,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: Colors.grey[700]?.withOpacity(0.1),
+            color: const Color.fromRGBO(243, 236, 219, 1),
           ),
           child: Stack(
             children: [
+              // Image.asset("assets/backgrounds/paper.webp"),
               Positioned(
                 top: 0,
                 right: 0,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Row(
-                      children: [
-                        // --------------------
-                        //  ICONY TYPU JEDZENIA
-                        Icon(Icons.local_pizza, size: 30),
-                        Icon(Icons.ramen_dining, size: 30),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
                     Row(
                       children: [
                         // --------------------
-                        //  ICONA CZASU
-                        const Icon(Icons.access_time),
-                        Text(openingHour),
-                      ],
-                    ),
-                    const Row(
-                      children: [
-                        // --------------------
-                        //  ICONA ODLEGLOSCI
-                        Icon(Icons.navigation_rounded),
-                        Text("300m"),
+                        //  ICONA PROMOCJI
+                        Row(children: [
+                          const Icon(Icons.access_time),
+                          Text(openingHour),
+                          const Text("     "),
+                          Text(discountsAmount?.toString() ?? ""),
+                          const Icon(Icons.local_fire_department_rounded),
+                        ])
                       ],
                     ),
                   ],
@@ -72,17 +61,17 @@ class CustomListTile extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Text(" "),
                           Text(name, style: const TextStyle(fontSize: 23)),
                         ],
                       ),
-                      Row(
-                        children: [
-                          // --------------------
-                          //  ICONA PROMOCJI
-                          const Icon(Icons.local_fire_department_rounded),
-                          Text(discountsAmount?.toString() ?? ""),
-                        ],
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: 220,
+                        child: Image.asset("assets/backgrounds/fota1.jpg",
+                            fit: BoxFit.cover),
+                      ),
+                      const SizedBox(
+                        height: 5,
                       ),
                       Row(
                         children: [
