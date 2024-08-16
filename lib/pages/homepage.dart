@@ -5,6 +5,7 @@ import 'package:studfood/components/main_appbar.dart';
 import 'package:studfood/components/my_drawer.dart';
 import 'package:studfood/components/custom_list_tile.dart';
 import 'package:studfood/services/firestore.dart';
+import 'package:studfood/components/custom_search_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -15,14 +16,16 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+bool isSearchBarOpened = false;
+
 Logger logger = Logger();
 
 List<String> selectedFilters = [];
 
 class _HomePageState extends State<HomePage> {
   String searchQuery = "";
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocus = FocusNode();
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocus = FocusNode();
 
   Future<int> getDiscountCount(String docId) async {
     DocumentReference restaurantDoc =
@@ -41,9 +44,19 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _searchController.dispose();
-    _searchFocus.dispose();
+    searchController.dispose();
+    searchFocus.dispose();
     super.dispose();
+  }
+
+  void toggleSearchBar() {
+    setState(() {
+      isSearchBarOpened = !isSearchBarOpened;
+      if (!isSearchBarOpened) {
+        searchController.clear();
+        searchQuery = "";
+      }
+    });
   }
 
   @override
@@ -63,7 +76,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
         backgroundColor: const Color.fromRGBO(244, 233, 203, 1),
-        appBar: const MyAppBar(),
+        appBar: MyAppBar(onSearchButtonPressed: toggleSearchBar),
         floatingActionButton: FloatingActionButton(
           onPressed: () => Navigator.pushNamed(context, "MapPage"),
           child: const Icon(Icons.map),
@@ -72,8 +85,8 @@ class _HomePageState extends State<HomePage> {
         body: GestureDetector(
           onTap: () {
             // Unfocus search field when tapping outside
-            if (_searchFocus.hasFocus) {
-              _searchFocus.unfocus();
+            if (searchFocus.hasFocus) {
+              searchFocus.unfocus();
             }
           },
           child: Stack(
@@ -83,32 +96,17 @@ class _HomePageState extends State<HomePage> {
                   //-------------------------------------------
                   //                 SEARCH BAR
                   //-------------------------------------------
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocus,
-                      autofocus: false,
-                      decoration: InputDecoration(
-                        hintText: 'Wyszukaj restauracje...',
-                        prefixIcon: const Icon(Icons.search),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              searchQuery = "";
-                            });
-                          },
-                        ),
-                      ),
-                      onChanged: (value) {
+                  if (isSearchBarOpened)
+                    CustomSearchBar(
+                      searchController: searchController,
+                      searchFocus: searchFocus,
+                      onSearchChanged: (value) {
                         setState(() {
-                          searchQuery = value.toLowerCase();
+                          searchQuery = value;
                         });
                       },
                     ),
-                  ),
+
                   //-------------------------------------------
                   //            FOOD FILTER LIST
                   //-------------------------------------------
@@ -158,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                         )),
                   ),
                   //-------------------------------------------
-                  //           RESTAURANT IMAGE
+                  //           BACKGROUND IMAGE
                   //-------------------------------------------
                   Expanded(
                     child: Stack(children: [

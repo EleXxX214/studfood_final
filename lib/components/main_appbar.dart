@@ -1,38 +1,25 @@
 import 'package:flutter/material.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MyAppBar({super.key});
+  final VoidCallback onSearchButtonPressed;
+
+  const MyAppBar({super.key, required this.onSearchButtonPressed});
 
   @override
   Size get preferredSize => const Size.fromHeight(50);
 
   @override
   Widget build(BuildContext context) {
-    DateTime today = DateTime.now();
-
-    var weekday = today.weekday;
-
-    List<String> weekdays = [
-      'Poniedziałek',
-      'Wtorek',
-      'Środa',
-      'Czwartek',
-      'Piątek',
-      'Sobota',
-      'Niedziela'
-    ];
-
     return AppBar(
       backgroundColor: const Color.fromRGBO(244, 233, 203, 1),
       centerTitle: true,
       title: const Text("StudFooD"),
       actions: [
-        Row(
-          children: [
-            Text(weekdays[weekday - 1]),
-            cityPickerButton(context),
-          ],
+        IconButton(
+          onPressed: onSearchButtonPressed,
+          icon: const Icon(Icons.search),
         ),
+        cityPickerButton(context),
       ],
     );
   }
@@ -57,10 +44,10 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         );
       },
       child: const Row(children: [
-        Icon(Icons.location_city, color: Colors.white),
+        Icon(Icons.location_city, color: Colors.black),
         Text(
           "Kraków",
-          style: TextStyle(color: Colors.white, fontSize: 15),
+          style: TextStyle(color: Colors.black, fontSize: 15),
         )
       ]),
     );
