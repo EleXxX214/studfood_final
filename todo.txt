@@ -1,0 +1,6 @@
+1.Stworzyc folder main w storage dla zdjecia glownego restauracji
+2.Dodanie funkcjonalnosci pobierania glownego zdjecia restaurafcji do mainpage
+3.Dodanie tworzenia sie folderu restauracji w storage przy tworzeniu nowej restauracji
+4.Mozliwosc pozniejszego dodawania zdjec z poziomu aplikacji oraz wybranie glownego zdjecia z poziomu aplikacji
+5.Dodanie odnosnika do MENU restauracji
+6.Zmiana kolorow ikonek w restaurangpage

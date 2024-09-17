@@ -274,7 +274,7 @@ class _AdminPageState extends State<AdminPage> {
 
                 return ListTile(
                   title: Text(restaurantName),
-                  subtitle: Text(restaurant['discountCount'].toString()),
+                  subtitle: Text(docId),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

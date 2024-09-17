@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:studfood/components/custom_appbar.dart';
-import 'package:studfood/pages/restaurantpage.dart';
+
 import 'package:studfood/services/firestore.dart';
 
 class DiscountsPage extends StatefulWidget {
@@ -25,9 +25,7 @@ class _DiscountsPageState extends State<DiscountsPage> {
   final FirestoreService firestoreService = FirestoreService();
 
   void openAddBox({String? discountId, required String docId}) {
-    logger.w(discountId);
     if (discountId != null) {
-      logger.t(discountId);
       FirestoreService().getDiscount(docId, discountId).then((discountData) {
         discountController.text = discountData?['discount'] ?? '';
       }).catchError((error) {

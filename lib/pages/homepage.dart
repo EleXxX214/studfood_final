@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
     if (weekday == 6) day = "saturday";
 
     return Scaffold(
-        backgroundColor: const Color.fromRGBO(244, 233, 203, 1),
+        backgroundColor: const Color.fromRGBO(245, 235, 223, 1),
         appBar: const MyAppBar(),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.white,
@@ -203,7 +203,7 @@ class _HomePageState extends State<HomePage> {
                     child: Stack(children: [
                       Positioned.fill(
                         child: Image.asset(
-                          "assets/backgrounds/b1.webp",
+                          "assets/backgrounds/bg2.jpg",
                           fit: BoxFit.cover,
                         ),
                       ),

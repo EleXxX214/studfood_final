@@ -23,7 +23,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     ];
 
     return AppBar(
-      backgroundColor: const Color.fromRGBO(244, 233, 203, 1),
+      backgroundColor: const Color.fromRGBO(245, 235, 223, 1),
       centerTitle: true,
       scrolledUnderElevation: 0,
       elevation: 0,
