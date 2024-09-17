@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import 'package:logger/logger.dart';
 import 'package:studfood/components/main_appbar.dart';
 import 'package:studfood/components/my_drawer.dart';
 import 'package:studfood/components/custom_list_tile.dart';
 import 'package:studfood/services/firestore.dart';
+import 'package:string_extensions/string_extensions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -23,6 +25,27 @@ class _HomePageState extends State<HomePage> {
   String searchQuery = "";
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
+
+  final ScrollController _scrollController = ScrollController();
+  bool _showFilters = true;
+
+  @override
+  void initState() {
+    _scrollController.addListener(_scrollListener);
+    super.initState();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset > 50 && _showFilters) {
+      setState(() {
+        _showFilters = false;
+      });
+    } else if (_scrollController.offset <= 50 && !_showFilters) {
+      setState(() {
+        _showFilters = true;
+      });
+    }
+  }
 
   Future<int> getDiscountCount(String docId) async {
     DocumentReference restaurantDoc =
@@ -44,12 +67,16 @@ class _HomePageState extends State<HomePage> {
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
+
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     String day = "";
     FirestoreService().getFilters();
+
     DateTime today = DateTime.now();
     var weekday = today.weekday;
 
@@ -65,6 +92,8 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: const Color.fromRGBO(244, 233, 203, 1),
         appBar: const MyAppBar(),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
           onPressed: () => Navigator.pushNamed(context, "MapPage"),
           child: const Icon(Icons.map),
         ),
@@ -112,53 +141,63 @@ class _HomePageState extends State<HomePage> {
                   //-------------------------------------------
                   //            FOOD FILTER LIST
                   //-------------------------------------------
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: SizedBox(
-                        height: 50,
-                        child: FutureBuilder<QuerySnapshot>(
-                          future: FirestoreService().getFilters(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              final filters = snapshot.data!.docs;
-                              return ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: filters.length,
-                                itemBuilder: (context, index) {
-                                  final filter = filters[index].id;
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    child: FilterChip(
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 250, 245, 226),
-                                      selectedColor: const Color.fromRGBO(
-                                          255, 255, 190, 1),
-                                      selected:
-                                          selectedFilters.contains(filter),
-                                      onSelected: (bool value) {
-                                        setState(() {
-                                          if (value) {
-                                            selectedFilters.add(filter);
-                                          } else {
-                                            selectedFilters.remove(filter);
-                                          }
-                                        });
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    height: _showFilters ? 50 : 0,
+                    child: AnimatedOpacity(
+                        opacity: _showFilters ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: SizedBox(
+                              height: 50,
+                              child: FutureBuilder<QuerySnapshot>(
+                                future: FirestoreService().getFilters(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    final filters = snapshot.data!.docs;
+                                    return ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: filters.length,
+                                      itemBuilder: (context, index) {
+                                        final filter = filters[index].id;
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          child: FilterChip(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 250, 245, 226),
+                                            selectedColor: const Color.fromRGBO(
+                                                255, 255, 190, 1),
+                                            selected: selectedFilters
+                                                .contains(filter),
+                                            onSelected: (bool value) {
+                                              setState(() {
+                                                if (value) {
+                                                  selectedFilters.add(filter);
+                                                } else {
+                                                  selectedFilters
+                                                      .remove(filter);
+                                                }
+                                              });
+                                            },
+                                            label: Text(
+                                                filters[index].id.capitalize),
+                                          ),
+                                        );
                                       },
-                                      label: Text(filters[index].id),
-                                    ),
-                                  );
+                                    );
+                                  } else {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  }
                                 },
-                              );
-                            } else {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                          },
+                              )),
                         )),
                   ),
                   //-------------------------------------------
-                  //           RESTAURANT IMAGE
+                  //           BACKGROUND RESTAURANT LIST IMAGE
                   //-------------------------------------------
                   Expanded(
                     child: Stack(children: [
@@ -211,6 +250,7 @@ class _HomePageState extends State<HomePage> {
 
                             return ListView.builder(
                               itemCount: restaurantList.length,
+                              controller: _scrollController,
                               itemBuilder: (context, index) {
                                 DocumentSnapshot document =
                                     restaurantList[index];

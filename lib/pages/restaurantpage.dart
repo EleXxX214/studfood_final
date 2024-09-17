@@ -1,15 +1,23 @@
 // ignore_for_file: avoid_print
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:studfood/components/custom_appbar.dart';
 import 'package:studfood/services/firestore.dart';
-import 'package:studfood/services/storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
 var logger = Logger();
+
+List<String> imageUrls = [
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdJY5pAwG0mJaSQCMmSfv8gD3sNQQMS2VG4Q&s',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ13Jl1a9htXg4-ZlPYOYI3QOR9VP4iWHLbQg&s',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUf167u3rwNotewCWKzFBK4BSHuBwniT4OCQ&s',
+  'https://www.jestrudo.pl/wp-content/uploads/2015/07/food-porn06.png',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqi_PFNG0PuFESqKHqNok36MMNoQ6GJ_my5g&s',
+];
 
 class RestaurantPage extends StatefulWidget {
   final String restaurantId;
@@ -127,9 +135,24 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 //            Restaurant image
                 // ----------------------------------
                 SizedBox(
-                  width: 450,
-                  height: 200,
-                  child: FutureBuilder<String>(
+                    width: 450,
+                    height: 200,
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: 200,
+                        autoPlay: true,
+                        enlargeCenterPage: true,
+                      ),
+                      items: imageUrls.map((url) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Image.network(url, fit: BoxFit.cover);
+                          },
+                        );
+                      }).toList(),
+                    )
+
+                    /* FutureBuilder<String>(
                     future: downloadURL(restaurantData['imageUrl'] ?? ""),
                     builder: (context, imageSnapshot) {
                       if (imageSnapshot.connectionState ==
@@ -143,8 +166,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       }
                       return const CircularProgressIndicator();
                     },
-                  ),
-                ),
+                  ),*/
+                    ),
                 Row(
                   children: [
                     // ----------------------------------
