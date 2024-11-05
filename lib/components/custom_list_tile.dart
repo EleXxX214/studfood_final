@@ -53,15 +53,17 @@ class CustomListTile extends StatelessWidget {
                           ),
                         ),
                         if (constraints.maxWidth > 200) ...[
-                          Icon(Icons.access_time, size: 12),
-                          SizedBox(width: 2),
-                          Text(openingHour, style: TextStyle(fontSize: 10)),
+                          const Icon(Icons.access_time, size: 12),
+                          const SizedBox(width: 2),
+                          Text(openingHour,
+                              style: const TextStyle(fontSize: 10)),
                         ],
                         if (constraints.maxWidth > 250) ...[
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(discountsAmount?.toString() ?? "",
-                              style: TextStyle(fontSize: 10)),
-                          Icon(Icons.local_fire_department_rounded, size: 12),
+                              style: const TextStyle(fontSize: 10)),
+                          const Icon(Icons.local_fire_department_rounded,
+                              size: 12),
                         ],
                       ],
                     ),
@@ -80,13 +82,13 @@ class CustomListTile extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
-                        Icon(Icons.location_on_outlined, size: 12),
-                        SizedBox(width: 4),
+                        const Icon(Icons.location_on_outlined, size: 12),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             address,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 10),
+                            style: const TextStyle(fontSize: 10),
                           ),
                         ),
                       ],

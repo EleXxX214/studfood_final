@@ -11,10 +11,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       centerTitle: true,
-      scrolledUnderElevation: 0,
-      elevation: 0,
       scrolledUnderElevation: 0,
       elevation: 0,
       title: const Text("StudFooD"),
@@ -52,7 +50,6 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         Icon(Icons.location_city, color: Colors.black),
         Text(
           "Kraków",
-          style: TextStyle(color: Colors.black, fontSize: 15),
           style: TextStyle(color: Colors.black, fontSize: 15),
         )
       ]),

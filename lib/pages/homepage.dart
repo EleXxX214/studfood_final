@@ -44,8 +44,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    searchController.dispose();
-    searchFocus.dispose();
+    _searchController.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
         backgroundColor: const Color.fromRGBO(244, 233, 203, 1),
-        appBar: const MyAppBar(),
+        appBar: MyAppBar(onSearchButtonPressed: () {}),
         floatingActionButton: FloatingActionButton(
           onPressed: () => Navigator.pushNamed(context, "MapPage"),
           child: const Icon(Icons.map),
