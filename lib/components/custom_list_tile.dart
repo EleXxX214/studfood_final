@@ -23,80 +23,72 @@ class CustomListTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
+          padding: const EdgeInsets.all(8.0),
           height: 300,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            color: const Color.fromARGB(255, 255, 255, 255),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
+            color: const Color.fromRGBO(243, 236, 219, 1),
           ),
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
+            children: [
+              // Image.asset("assets/backgrounds/paper.webp"),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        // --------------------
+                        //  ICONA PROMOCJI
+                        Row(children: [
+                          const Icon(Icons.access_time),
+                          Text(openingHour),
+                          const Text("     "),
+                          Text(discountsAmount?.toString() ?? ""),
+                          const Icon(Icons.local_fire_department_rounded),
+                        ])
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            name,
-                            style: const TextStyle(fontSize: 18),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (constraints.maxWidth > 200) ...[
-                          const Icon(Icons.access_time, size: 12),
-                          const SizedBox(width: 2),
-                          Text(openingHour,
-                              style: const TextStyle(fontSize: 10)),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(name, style: const TextStyle(fontSize: 23)),
                         ],
-                        if (constraints.maxWidth > 250) ...[
-                          const SizedBox(width: 4),
-                          Text(discountsAmount?.toString() ?? "",
-                              style: const TextStyle(fontSize: 10)),
-                          const Icon(Icons.local_fire_department_rounded,
-                              size: 12),
-                        ],
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.asset(
-                        "assets/backgrounds/fota1.jpg",
-                        fit: BoxFit.cover,
-                        width: double.infinity,
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.location_on_outlined, size: 12),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            address,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 10),
-                          ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: 220,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset("assets/backgrounds/fota1.jpg",
+                              fit: BoxFit.cover),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        children: [
+                          // --------------------
+                          //  ICONA ADRESU
+                          const Icon(Icons.location_on_outlined),
+                          Text(address),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
-              );
-            },
+              ),
+            ],
           ),
         ),
       ),
