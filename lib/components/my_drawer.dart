@@ -6,7 +6,7 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-        backgroundColor: const Color.fromRGBO(250, 247, 229, 1),
+        backgroundColor: Color.fromARGB(255, 255, 255, 254),
         width: 200,
         child: ListView(
           padding: EdgeInsets.zero,

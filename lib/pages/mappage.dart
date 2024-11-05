@@ -76,7 +76,6 @@ class _MapPageState extends State<MapPage> {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      logger.t(data);
       if (data['status'] == 'OK') {
         final location = data['results'][0]['geometry']['location'];
         return LatLng(location['lat'], location['lng']);

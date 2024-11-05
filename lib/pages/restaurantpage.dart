@@ -1,15 +1,30 @@
 // ignore_for_file: avoid_print
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:studfood/components/custom_appbar.dart';
 import 'package:studfood/services/firestore.dart';
-import 'package:studfood/services/storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 
 var logger = Logger();
+
+Future<List<String>> getImageUrls(String restaurantId) async {
+  final storage = FirebaseStorage.instance;
+  final listResult =
+      await storage.ref('restaurants_photos/$restaurantId').listAll();
+  List<String> urls = [];
+
+  for (var item in listResult.items) {
+    String url = await item.getDownloadURL();
+    urls.add(url);
+  }
+
+  return urls;
+}
 
 class RestaurantPage extends StatefulWidget {
   final String restaurantId;
@@ -22,6 +37,7 @@ class RestaurantPage extends StatefulWidget {
 
 class _RestaurantPageState extends State<RestaurantPage> {
   late Future<Map<String, dynamic>> _restaurantFuture;
+  List<String> imageUrls = [];
 
   @override
   // ----------------------------------
@@ -29,11 +45,25 @@ class _RestaurantPageState extends State<RestaurantPage> {
   // ----------------------------------
   void initState() {
     super.initState();
-    print("Restaurant ID: ${widget.restaurantId}");
     if (widget.restaurantId.isNotEmpty) {
       _restaurantFuture = getRestaurantData(widget.restaurantId);
+      _loadImageUrls();
     } else {
       _restaurantFuture = Future.error('restaurantId is empty');
+    }
+  }
+
+  Future<void> _loadImageUrls() async {
+    try {
+      List<String> urls = await getImageUrls(widget.restaurantId);
+      if (mounted) {
+        // Sprawdź, czy widżet jest nadal w drzewie
+        setState(() {
+          imageUrls = urls;
+        });
+      }
+    } catch (e) {
+      print('Błąd podczas ładowania URL-i zdjęć: $e');
     }
   }
 
@@ -45,7 +75,6 @@ class _RestaurantPageState extends State<RestaurantPage> {
         await FirestoreService().getRestaurant(docId);
     Map<String, dynamic> restaurantData =
         restaurantSnapshot.data() as Map<String, dynamic>;
-    logger.t(restaurantData);
     return restaurantData;
   }
 
@@ -127,9 +156,24 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 //            Restaurant image
                 // ----------------------------------
                 SizedBox(
-                  width: 450,
-                  height: 200,
-                  child: FutureBuilder<String>(
+                    width: 450,
+                    height: 200,
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: 200,
+                        autoPlay: true,
+                        enlargeCenterPage: true,
+                      ),
+                      items: imageUrls.map((url) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Image.network(url, fit: BoxFit.cover);
+                          },
+                        );
+                      }).toList(),
+                    )
+
+                    /* FutureBuilder<String>(
                     future: downloadURL(restaurantData['imageUrl'] ?? ""),
                     builder: (context, imageSnapshot) {
                       if (imageSnapshot.connectionState ==
@@ -143,8 +187,8 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       }
                       return const CircularProgressIndicator();
                     },
-                  ),
-                ),
+                  ),*/
+                    ),
                 Row(
                   children: [
                     // ----------------------------------
