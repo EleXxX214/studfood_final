@@ -15,6 +15,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       scrolledUnderElevation: 0,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      elevation: 0,
       title: const Text("StudFooD"),
       actions: [
         IconButton(
@@ -47,8 +49,10 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       },
       child: const Row(children: [
         Icon(Icons.location_city, color: Colors.black),
+        Icon(Icons.location_city, color: Colors.black),
         Text(
           "Kraków",
+          style: TextStyle(color: Colors.black, fontSize: 15),
           style: TextStyle(color: Colors.black, fontSize: 15),
         )
       ]),
