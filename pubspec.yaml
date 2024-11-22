@@ -7,6 +7,7 @@ environment:
     sdk: ">=3.3.3 <4.0.0"
 
 dependencies:
+    google_fonts: ^6.2.1
     cloud_firestore: ^5.0.2
     firebase_core: ^3.1.1
     flutter:
@@ -35,8 +36,13 @@ flutter:
     assets:
         - assets/map/restaurant_pin.png
         - assets/photos/photo.jpg
-        - assets/backgrounds/b1.webp
+
         - assets/backgrounds/paper.webp
         - assets/backgrounds/burger.webp
         - assets/backgrounds/fota1.jpg
-        - assets/backgrounds/bg2.jpg
+    fonts:
+        - family: coolvetica
+          fonts:
+              - asset: assets/fonts/coolvetica.otf
+              - asset: assets/fonts/GoodFood.ttf
+              - asset: assets/fonts/YummyFoodies.ttf

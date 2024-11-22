@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onSearchButtonPressed;
@@ -15,7 +16,11 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       scrolledUnderElevation: 0,
       elevation: 0,
-      title: const Text("StudFooD"),
+      title: Text(
+        "StudFooD",
+        style: TextStyle(
+            fontFamily: GoogleFonts.kirangHaerang().fontFamily, fontSize: 35),
+      ),
       actions: [
         IconButton(
           onPressed: onSearchButtonPressed,
@@ -46,7 +51,6 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         );
       },
       child: const Row(children: [
-        Icon(Icons.location_city, color: Colors.black),
         Icon(Icons.location_city, color: Colors.black),
         Text(
           "Kraków",

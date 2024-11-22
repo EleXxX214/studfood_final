@@ -58,9 +58,9 @@ class FirestoreService {
 //  READ RESTAURANTS STREAM
 // --------------------------
 
-  Stream<QuerySnapshot> getRestaurants() {
-    final restaurantStream = restaurants.orderBy('name').snapshots();
-    return restaurantStream;
+  Future<QuerySnapshot> getRestaurants() {
+    final restaurantFuture = restaurants.orderBy('name').get();
+    return restaurantFuture;
   }
 
 // --------------------------

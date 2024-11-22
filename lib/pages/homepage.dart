@@ -32,24 +32,10 @@ class _HomePageState extends State<HomePage> {
   final FocusNode searchFocus = FocusNode();
 
   final ScrollController _scrollController = ScrollController();
-  bool _showFilters = true;
 
   @override
   void initState() {
-    _scrollController.addListener(_scrollListener);
     super.initState();
-  }
-
-  void _scrollListener() {
-    if (_scrollController.offset > 50 && _showFilters) {
-      setState(() {
-        _showFilters = false;
-      });
-    } else if (_scrollController.offset <= 50 && !_showFilters) {
-      setState(() {
-        _showFilters = true;
-      });
-    }
   }
 
   Future<int> getDiscountCount(String docId) async {
@@ -72,9 +58,6 @@ class _HomePageState extends State<HomePage> {
     searchController.dispose();
     searchFocus.dispose();
     super.dispose();
-
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
   }
 
   void toggleSearchBar() {
@@ -104,7 +87,7 @@ class _HomePageState extends State<HomePage> {
     if (weekday == 6) day = "saturday";
 
     return Scaffold(
-        backgroundColor: const Color.fromRGBO(244, 233, 203, 1),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         appBar: MyAppBar(onSearchButtonPressed: toggleSearchBar),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.white,
@@ -116,9 +99,7 @@ class _HomePageState extends State<HomePage> {
         body: GestureDetector(
           onTap: () {
             // Unfocus search field when tapping outside
-            if (searchFocus.hasFocus) {
-              searchFocus.unfocus();
-            }
+            if (searchFocus.hasFocus) {}
           },
           child: Stack(
             children: [
@@ -137,85 +118,59 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                     ),
-
                   //-------------------------------------------
                   //            FOOD FILTER LIST
                   //-------------------------------------------
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    height: _showFilters ? 50 : 0,
-                    child: AnimatedOpacity(
-                        opacity: _showFilters ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: SizedBox(
-                              height: 50,
-                              child: FutureBuilder<QuerySnapshot>(
-                                future: FirestoreService().getFilters(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    final filters = snapshot.data!.docs;
-                                    return ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: filters.length,
-                                      itemBuilder: (context, index) {
-                                        final filter = filters[index].id;
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: FilterChip(
-                                            backgroundColor:
-                                                const Color.fromARGB(
-                                                    255, 250, 245, 226),
-                                            selectedColor: const Color.fromRGBO(
-                                                255, 255, 190, 1),
-                                            selected: selectedFilters
-                                                .contains(filter),
-                                            onSelected: (bool value) {
-                                              setState(() {
-                                                if (value) {
-                                                  selectedFilters.add(filter);
-                                                } else {
-                                                  selectedFilters
-                                                      .remove(filter);
-                                                }
-                                              });
-                                            },
-                                            label: Text(
-                                                filters[index].id.capitalize),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  }
-                                },
-                              )),
-                        )),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: SizedBox(
+                      height: 50,
+                      child: FutureBuilder<QuerySnapshot>(
+                        future: FirestoreService().getFilters(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final filters = snapshot.data!.docs;
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: filters.length,
+                              itemBuilder: (context, index) {
+                                final filter = filters[index].id;
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: FilterChip(
+                                    backgroundColor: const Color.fromARGB(
+                                        255, 250, 245, 226),
+                                    selectedColor:
+                                        const Color.fromRGBO(255, 255, 190, 1),
+                                    selected: selectedFilters.contains(filter),
+                                    onSelected: (bool value) {
+                                      setState(() {
+                                        if (value) {
+                                          selectedFilters.add(filter);
+                                        } else {
+                                          selectedFilters.remove(filter);
+                                        }
+                                      });
+                                    },
+                                    label: Text(filters[index].id.capitalize),
+                                  ),
+                                );
+                              },
+                            );
+                          } else {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                        },
+                      ),
+                    ),
                   ),
-                  //-------------------------------------------
 
-                  //           BACKGROUND IMAGE
-
-                  //           BACKGROUND RESTAURANT LIST IMAGE
-
-                  //-------------------------------------------
                   Expanded(
                     child: Stack(children: [
-                      Positioned.fill(
-                        child: Image.asset(
-                          "assets/backgrounds/b1.webp",
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      //-------------------------------------------
-                      //-------------------------------------------
-                      //-------------------------------------------
-                      StreamBuilder<QuerySnapshot>(
-                        stream: FirestoreService().getRestaurants(),
+                      FutureBuilder<QuerySnapshot>(
+                        future: FirestoreService().getRestaurants(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<DocumentSnapshot> restaurantList =

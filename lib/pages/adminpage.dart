@@ -209,8 +209,8 @@ class _AdminPageState extends State<AdminPage> {
       appBar: const CustomAppBar(
         title: "Admin Page",
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: firestoreService.getRestaurants(),
+      body: FutureBuilder<QuerySnapshot>(
+        future: firestoreService.getRestaurants(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List restaurantList = snapshot.data!.docs;

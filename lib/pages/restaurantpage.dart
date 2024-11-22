@@ -157,38 +157,73 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 // ----------------------------------
                 SizedBox(
                     width: 450,
-                    height: 200,
+                    height: 300,
                     child: CarouselSlider(
                       options: CarouselOptions(
-                        height: 200,
+                        height: 300,
                         autoPlay: true,
                         enlargeCenterPage: true,
                       ),
                       items: imageUrls.map((url) {
                         return Builder(
                           builder: (BuildContext context) {
-                            return Image.network(url, fit: BoxFit.cover);
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                  20), // Zaokrąglenie rogów
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.network(
+                                    url,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child; // Obraz został załadowany
+                                      }
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  (loadingProgress
+                                                          .expectedTotalBytes ??
+                                                      1)
+                                              : null, // Obliczenie postępu ładowania
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (BuildContext context,
+                                        Object error, StackTrace? stackTrace) {
+                                      return const Center(
+                                        child: Icon(Icons.error,
+                                            color: Colors.red),
+                                      );
+                                    },
+                                  ),
+                                  // Opcjonalny cień dla obrazu
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.black26,
+                                          Colors.transparent
+                                        ],
+                                        begin: Alignment.bottomCenter,
+                                        end: Alignment.topCenter,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
                         );
                       }).toList(),
-                    )
-
-                    /* FutureBuilder<String>(
-                    future: downloadURL(restaurantData['imageUrl'] ?? ""),
-                    builder: (context, imageSnapshot) {
-                      if (imageSnapshot.connectionState ==
-                          ConnectionState.done) {
-                        if (imageSnapshot.hasData) {
-                          return Image.network(imageSnapshot.data!);
-                        } else if (imageSnapshot.hasError) {
-                          return Text(
-                              'Error loading image: ${imageSnapshot.error}');
-                        }
-                      }
-                      return const CircularProgressIndicator();
-                    },
-                  ),*/
-                    ),
+                    )),
                 Row(
                   children: [
                     // ----------------------------------
@@ -199,7 +234,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       onPressed: () {},
                       icon: const Icon(Icons.favorite_border),
                       iconSize: 80,
-                      color: Colors.white,
+                      color: const Color.fromARGB(255, 71, 46, 46),
                     ),
                     // ----------------------------------
                     //              MENU ICON
@@ -209,7 +244,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       onPressed: () {},
                       icon: const Icon(Icons.menu_book),
                       iconSize: 80,
-                      color: Colors.white,
+                      color: const Color.fromARGB(255, 71, 47, 47),
                     ),
                     // ----------------------------------
                     //          NAVIGATION ICON
@@ -221,7 +256,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       },
                       icon: const Icon(Icons.near_me),
                       iconSize: 80,
-                      color: Colors.white,
+                      color: const Color.fromARGB(255, 83, 53, 53),
                     ),
                     const Spacer(),
                   ],

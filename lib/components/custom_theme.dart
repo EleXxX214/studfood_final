@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static ThemeData customTheme() {
     return ThemeData(
+      fontFamily: 'coolvetica',
       primaryColor: const Color.fromARGB(255, 255, 255, 255),
       scaffoldBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
       textButtonTheme: TextButtonThemeData(
