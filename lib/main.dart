@@ -10,10 +10,17 @@ import 'package:studfood/pages/mappage.dart';
 import 'package:studfood/pages/discountspage.dart';
 import 'package:studfood/pages/contactpage.dart';
 import 'package:studfood/pages/photopage.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.debug,
+  );
+
   runApp(const MainApp());
 }
 

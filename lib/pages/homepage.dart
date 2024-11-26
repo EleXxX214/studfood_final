@@ -25,10 +25,14 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<bool> isSearchBarOpenedNotifier = ValueNotifier(false);
+
+  late Future<QuerySnapshot> _restaurantFuture;
 
   @override
   void initState() {
     super.initState();
+    _restaurantFuture = FirestoreService().getRestaurants();
   }
 
   final firestoreService = FirestoreService();
@@ -44,17 +48,16 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     searchController.dispose();
     searchFocus.dispose();
+    isSearchBarOpenedNotifier.dispose();
     super.dispose();
   }
 
   void toggleSearchBar() {
-    setState(() {
-      isSearchBarOpened = !isSearchBarOpened;
-      if (!isSearchBarOpened) {
-        searchController.clear();
-        searchQuery = "";
-      }
-    });
+    isSearchBarOpenedNotifier.value = !isSearchBarOpenedNotifier.value;
+    if (!isSearchBarOpenedNotifier.value) {
+      searchController.clear();
+      searchQuery = "";
+    }
   }
 
   @override
@@ -85,7 +88,6 @@ class _HomePageState extends State<HomePage> {
       drawer: const MyDrawer(),
       body: GestureDetector(
         onTap: () {
-          // Unfocus search field when tapping outside
           if (searchFocus.hasFocus) {
             searchFocus.unfocus();
           }
@@ -97,16 +99,26 @@ class _HomePageState extends State<HomePage> {
                 //-------------------------------------------
                 //                 SEARCH BAR
                 //-------------------------------------------
-                if (isSearchBarOpened)
-                  CustomSearchBar(
-                    searchController: searchController,
-                    searchFocus: searchFocus,
-                    onSearchChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
-                  ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: isSearchBarOpenedNotifier,
+                  builder: (context, isSearchBarOpened, child) {
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: isSearchBarOpened
+                          ? CustomSearchBar(
+                              key: const ValueKey('searchBar'),
+                              searchController: searchController,
+                              searchFocus: searchFocus,
+                              onSearchChanged: (value) {
+                                setState(() {
+                                  searchQuery = value;
+                                });
+                              },
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  },
+                ),
                 //-------------------------------------------
                 //            FOOD FILTER LIST
                 //-------------------------------------------
@@ -128,10 +140,14 @@ class _HomePageState extends State<HomePage> {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: FilterChip(
+                                  side: BorderSide.none,
+                                  elevation: 3,
+                                  shadowColor:
+                                      const Color.fromARGB(255, 255, 64, 214),
                                   backgroundColor:
-                                      const Color.fromARGB(255, 250, 245, 226),
+                                      const Color.fromARGB(184, 251, 146, 255),
                                   selectedColor:
-                                      const Color.fromRGBO(255, 255, 190, 1),
+                                      const Color.fromARGB(255, 255, 64, 214),
                                   selected: selectedFilters.contains(filter),
                                   onSelected: (bool value) {
                                     setState(() {
@@ -142,7 +158,12 @@ class _HomePageState extends State<HomePage> {
                                       }
                                     });
                                   },
-                                  label: Text(filters[index].id.capitalize),
+                                  label: Text(
+                                    filters[index].id.capitalize,
+                                    style: const TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 255, 240, 240)),
+                                  ),
                                 ),
                               );
                             },
@@ -159,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                   child: Stack(
                     children: [
                       FutureBuilder<QuerySnapshot>(
-                        future: FirestoreService().getRestaurants(),
+                        future: _restaurantFuture,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<DocumentSnapshot> restaurantList =

@@ -29,13 +29,21 @@ class CustomListTile extends StatelessWidget {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: const Color.fromRGBO(0, 0, 0, 1).withOpacity(0.5),
-                blurRadius: 2,
+                color:
+                    const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
+                blurRadius: 10,
                 spreadRadius: 3,
               ),
             ],
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.topRight,
+              colors: [
+                Color.fromARGB(155, 251, 146, 255),
+                Color.fromARGB(255, 255, 255, 255),
+              ],
+            ),
             borderRadius: BorderRadius.circular(20),
-            color: const Color.fromRGBO(255, 255, 255, 1),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
