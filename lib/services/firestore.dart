@@ -6,6 +6,7 @@ class FirestoreService {
 
   final CollectionReference filters =
       FirebaseFirestore.instance.collection("filters");
+
 //____________________________
 //---------------------
 //    RESTAURANTS
@@ -21,7 +22,6 @@ class FirestoreService {
     String address,
     num? discountsAmount,
     String description,
-    String imageUrl,
     String monday,
     String tuesday,
     String wednesday,
@@ -35,7 +35,6 @@ class FirestoreService {
       'address': address,
       'discountsAmount': discountsAmount,
       'description': description,
-      'imageUrl': imageUrl,
       'monday': monday,
       'tuesday': tuesday,
       'wednesday': wednesday,
@@ -55,7 +54,7 @@ class FirestoreService {
   }
 
 // --------------------------
-//  READ RESTAURANTS STREAM
+//  READ RESTAURANTS
 // --------------------------
 
   Future<QuerySnapshot> getRestaurants() {
@@ -73,7 +72,6 @@ class FirestoreService {
     String newAddress,
     num? newDiscountsAmount,
     String newDescription,
-    String newImageUrl,
     String monday,
     String tuesday,
     String wednesday,
@@ -86,7 +84,6 @@ class FirestoreService {
       'name': newName,
       'address': newAddress,
       'discountsAmount': newDiscountsAmount,
-      'imageUrl': newImageUrl,
       'description': newDescription,
       'monday': monday,
       'tuesday': tuesday,
@@ -108,6 +105,23 @@ class FirestoreService {
   }
 
 // --------------------------
+//  UPDATE DISCOUNT COUNT
+// Aktualizuje liczbe znizek w głownym widoku
+// --------------------------
+
+  Future<void> updateDiscountCount(String docId) async {
+    DocumentReference restaurantDoc =
+        FirebaseFirestore.instance.collection('restaurants').doc(docId);
+
+    QuerySnapshot discountsSnapshot =
+        await restaurantDoc.collection('discounts').get();
+
+    int discountCount = discountsSnapshot.size;
+
+    await restaurantDoc.update({'discountCount': discountCount});
+  }
+
+// --------------------------
 //  DELETE_RESTAURANTS
 // --------------------------
 
@@ -122,11 +136,6 @@ class FirestoreService {
         .doc(discountId)
         .delete();
   }
-//____________________________
-// --------------------------
-//        DISCOUNTS
-// --------------------------
-//____________________________
 
 // --------------------------
 //        ADD DISCOUNT
@@ -141,6 +150,7 @@ class FirestoreService {
 
 // --------------------------
 //        GET DISCOUNTS
+// Pobiera liste zniżek w widoku restauracji
 // --------------------------
 
   Future<QuerySnapshot<Object?>> getDiscounts(String docId) async {
@@ -153,6 +163,7 @@ class FirestoreService {
 
 // --------------------------
 //        GET DISCOUNT
+// Pobiera liste zniżek w widoku admina > zniżki restauracji
 // --------------------------
 
   Future<Map<String, dynamic>?> getDiscount(
@@ -161,27 +172,6 @@ class FirestoreService {
         restaurants.doc(docId).collection('discounts').doc(discountId);
     DocumentSnapshot discountSnapshot = await discountDoc.get();
     return discountSnapshot.data() as Map<String, dynamic>?;
-  }
-
-// --------------------------
-//    GET DISCOUNT COUNT
-// --------------------------
-
-  Future<int> getDiscountCount(String docId) async {
-    DocumentReference restaurantDoc = restaurants.doc(docId);
-    CollectionReference discounts = restaurantDoc.collection('discounts');
-    QuerySnapshot discountsSnapshot = await discounts.get();
-    return discountsSnapshot.size;
-  }
-
-// --------------------------
-//  UPADTE DISCOUNTS COUNT
-// --------------------------
-
-  Future<void> updateDiscountCount(String docId) async {
-    int discountCount = await getDiscountCount(docId);
-    DocumentReference restaurantDoc = restaurants.doc(docId);
-    await restaurantDoc.update({'discountCount': discountCount});
   }
 
 // --------------------------

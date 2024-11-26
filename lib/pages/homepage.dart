@@ -1,36 +1,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:studfood/components/main_appbar.dart';
 import 'package:studfood/components/my_drawer.dart';
 import 'package:studfood/components/custom_list_tile.dart';
 import 'package:studfood/services/firestore.dart';
-
 import 'package:studfood/components/custom_search_bar.dart';
-
 import 'package:string_extensions/string_extensions.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({
-    super.key,
-  });
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-bool isSearchBarOpened = false;
-
 Logger logger = Logger();
-
+bool isSearchBarOpened = false;
 List<String> selectedFilters = [];
 
 class _HomePageState extends State<HomePage> {
   String searchQuery = "";
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocus = FocusNode();
-
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -38,19 +31,13 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  Future<int> getDiscountCount(String docId) async {
-    DocumentReference restaurantDoc =
-        FirebaseFirestore.instance.collection('restaurants').doc(docId);
-    CollectionReference discounts = restaurantDoc.collection('discounts');
-    QuerySnapshot discountsSnapshot = await discounts.get();
-    return discountsSnapshot.size;
-  }
+  final firestoreService = FirestoreService();
 
-  Future<void> updateDiscountCount(String docId) async {
-    int discountCount = await getDiscountCount(docId);
-    DocumentReference restaurantDoc =
-        FirebaseFirestore.instance.collection('restaurants').doc(docId);
-    await restaurantDoc.update({'discountCount': discountCount});
+  Future<String> getLogoUrl(String restaurantId) async {
+    String url = await FirebaseStorage.instance
+        .ref('restaurants_photos/$restaurantId/logo.jpg')
+        .getDownloadURL();
+    return url;
   }
 
   @override
@@ -87,94 +74,97 @@ class _HomePageState extends State<HomePage> {
     if (weekday == 6) day = "saturday";
 
     return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        appBar: MyAppBar(onSearchButtonPressed: toggleSearchBar),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          onPressed: () => Navigator.pushNamed(context, "MapPage"),
-          child: const Icon(Icons.map),
-        ),
-        drawer: const MyDrawer(),
-        body: GestureDetector(
-          onTap: () {
-            // Unfocus search field when tapping outside
-            if (searchFocus.hasFocus) {}
-          },
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  //-------------------------------------------
-                  //                 SEARCH BAR
-                  //-------------------------------------------
-                  if (isSearchBarOpened)
-                    CustomSearchBar(
-                      searchController: searchController,
-                      searchFocus: searchFocus,
-                      onSearchChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      appBar: MyAppBar(onSearchButtonPressed: toggleSearchBar),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        onPressed: () => Navigator.pushNamed(context, "MapPage"),
+        child: const Icon(Icons.map),
+      ),
+      drawer: const MyDrawer(),
+      body: GestureDetector(
+        onTap: () {
+          // Unfocus search field when tapping outside
+          if (searchFocus.hasFocus) {
+            searchFocus.unfocus();
+          }
+        },
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                //-------------------------------------------
+                //                 SEARCH BAR
+                //-------------------------------------------
+                if (isSearchBarOpened)
+                  CustomSearchBar(
+                    searchController: searchController,
+                    searchFocus: searchFocus,
+                    onSearchChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                      });
+                    },
+                  ),
+                //-------------------------------------------
+                //            FOOD FILTER LIST
+                //-------------------------------------------
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: SizedBox(
+                    height: 50,
+                    child: FutureBuilder<QuerySnapshot>(
+                      future: FirestoreService().getFilters(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          final filters = snapshot.data!.docs;
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: filters.length,
+                            itemBuilder: (context, index) {
+                              final filter = filters[index].id;
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: FilterChip(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 250, 245, 226),
+                                  selectedColor:
+                                      const Color.fromRGBO(255, 255, 190, 1),
+                                  selected: selectedFilters.contains(filter),
+                                  onSelected: (bool value) {
+                                    setState(() {
+                                      if (value) {
+                                        selectedFilters.add(filter);
+                                      } else {
+                                        selectedFilters.remove(filter);
+                                      }
+                                    });
+                                  },
+                                  label: Text(filters[index].id.capitalize),
+                                ),
+                              );
+                            },
+                          );
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
                       },
                     ),
-                  //-------------------------------------------
-                  //            FOOD FILTER LIST
-                  //-------------------------------------------
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: SizedBox(
-                      height: 50,
-                      child: FutureBuilder<QuerySnapshot>(
-                        future: FirestoreService().getFilters(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final filters = snapshot.data!.docs;
-                            return ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: filters.length,
-                              itemBuilder: (context, index) {
-                                final filter = filters[index].id;
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: FilterChip(
-                                    backgroundColor: const Color.fromARGB(
-                                        255, 250, 245, 226),
-                                    selectedColor:
-                                        const Color.fromRGBO(255, 255, 190, 1),
-                                    selected: selectedFilters.contains(filter),
-                                    onSelected: (bool value) {
-                                      setState(() {
-                                        if (value) {
-                                          selectedFilters.add(filter);
-                                        } else {
-                                          selectedFilters.remove(filter);
-                                        }
-                                      });
-                                    },
-                                    label: Text(filters[index].id.capitalize),
-                                  ),
-                                );
-                              },
-                            );
-                          } else {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-                        },
-                      ),
-                    ),
                   ),
-
-                  Expanded(
-                    child: Stack(children: [
+                ),
+                Expanded(
+                  child: Stack(
+                    children: [
                       FutureBuilder<QuerySnapshot>(
                         future: FirestoreService().getRestaurants(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<DocumentSnapshot> restaurantList =
                                 snapshot.data!.docs;
+
                             //-------------------------------------------
                             //              RESTAURANT SEARCH
                             //-------------------------------------------
@@ -187,6 +177,7 @@ class _HomePageState extends State<HomePage> {
                                 return name.contains(searchQuery);
                               }).toList();
                             }
+
                             //-------------------------------------------
                             //              FOOD FILTERING
                             //-------------------------------------------
@@ -194,8 +185,6 @@ class _HomePageState extends State<HomePage> {
                               restaurantList = restaurantList.where((doc) {
                                 String? filter = (doc.data()
                                     as Map<String, dynamic>)['filter1'];
-
-                                // Sprawdzenie, czy filter nie jest null
                                 if (filter != null) {
                                   return selectedFilters.contains(filter);
                                 }
@@ -206,7 +195,6 @@ class _HomePageState extends State<HomePage> {
                             //-------------------------------------------
                             //        RESTAURANT TILES BUILDER
                             //-------------------------------------------
-
                             return ListView.builder(
                               itemCount: restaurantList.length,
                               controller: _scrollController,
@@ -216,17 +204,38 @@ class _HomePageState extends State<HomePage> {
                                 String docId = document.id;
                                 Map<String, dynamic> restaurant =
                                     document.data() as Map<String, dynamic>;
-                                updateDiscountCount(docId);
-                                return CustomListTile(
-                                  name: restaurant['name'],
-                                  address: restaurant['address'],
-                                  discountsAmount: restaurant['discountCount'],
-                                  openingHour: restaurant[day] ?? "No data",
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      'RestaurantPage',
-                                      arguments: docId,
+
+                                return FutureBuilder<String>(
+                                  future: getLogoUrl(docId),
+                                  builder: (context, logoSnapshot) {
+                                    if (logoSnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const SizedBox(
+                                        height: 100,
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      );
+                                    }
+                                    firestoreService.updateDiscountCount(docId);
+                                    String logoUrl = logoSnapshot.data ?? '';
+
+                                    return CustomListTile(
+                                      name: restaurant['name'],
+                                      address: restaurant['address'],
+                                      discountCount:
+                                          restaurant['discountCount'],
+                                      openingHour: restaurant[day] ?? "No data",
+                                      imageUrl: logoUrl.isNotEmpty
+                                          ? logoUrl
+                                          : 'https://via.placeholder.com/80',
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          'RestaurantPage',
+                                          arguments: docId,
+                                        );
+                                      },
                                     );
                                   },
                                 );
@@ -238,12 +247,14 @@ class _HomePageState extends State<HomePage> {
                           }
                         },
                       ),
-                    ]),
-                  )
-                ],
-              ),
-            ],
-          ),
-        ));
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

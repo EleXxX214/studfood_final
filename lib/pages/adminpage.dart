@@ -52,7 +52,7 @@ class _AdminPageState extends State<AdminPage> {
         discountCountController.text =
             restaurantData['discountCount'].toString();
         descriptionController.text = restaurantData['description'];
-        imageUrlController.text = restaurantData['imageUrl'];
+
         mondayController.text = restaurantData['monday'];
         tuesdayController.text = restaurantData['tuesday'];
         wednesdayController.text = restaurantData['wednesday'];
@@ -93,10 +93,6 @@ class _AdminPageState extends State<AdminPage> {
                 TextField(
                   controller: descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
-                ),
-                TextField(
-                  controller: imageUrlController,
-                  decoration: const InputDecoration(labelText: 'imageUrl'),
                 ),
                 const Divider(),
                 const Text("Opening Hours"),
@@ -143,7 +139,6 @@ class _AdminPageState extends State<AdminPage> {
                   addressController.text,
                   discountCountController.number,
                   descriptionController.text,
-                  imageUrlController.text,
                   mondayController.text,
                   tuesdayController.text,
                   wednesdayController.text,
@@ -159,7 +154,6 @@ class _AdminPageState extends State<AdminPage> {
                   addressController.text,
                   discountCountController.number,
                   descriptionController.text,
-                  imageUrlController.text,
                   mondayController.text,
                   tuesdayController.text,
                   wednesdayController.text,
@@ -278,12 +272,21 @@ class _AdminPageState extends State<AdminPage> {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ElevatedButton(
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, 'PhotoPage',
+                              arguments: docId);
+                        },
+                        icon:
+                            const Icon(Icons.photo_size_select_actual_outlined),
+                      ),
+                      IconButton(
                           onPressed: () {
                             Navigator.pushNamed(context, 'DiscountsPage',
                                 arguments: docId);
                           },
-                          child: const Text("Edit discounts")),
+                          icon:
+                              const Icon(Icons.local_fire_department_rounded)),
                       // --------------------
                       //    Delete button
                       IconButton(

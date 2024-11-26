@@ -3,17 +3,18 @@ import 'package:flutter/material.dart';
 class CustomListTile extends StatelessWidget {
   final String name;
   final String address;
-  final int? discountsAmount;
+  final int? discountCount;
   final String openingHour;
   final VoidCallback onTap;
-
+  final String imageUrl;
   const CustomListTile({
     super.key,
     required this.name,
     required this.address,
-    required this.discountsAmount,
+    required this.discountCount,
     required this.openingHour,
     required this.onTap,
+    required this.imageUrl,
   });
 
   @override
@@ -53,7 +54,7 @@ class CustomListTile extends StatelessWidget {
                                 const Icon(Icons.access_time),
                                 Text(openingHour),
                                 const Text("     "),
-                                Text(discountsAmount?.toString() ?? ""),
+                                Text(discountCount?.toString() ?? ""),
                                 const Icon(Icons.local_fire_department_rounded),
                               ],
                             )
@@ -78,9 +79,28 @@ class CustomListTile extends StatelessWidget {
                             height: 220,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              child: Image.asset(
-                                "assets/backgrounds/fota1.jpg",
+                              child: Image.network(
+                                imageUrl,
+                                width: 80,
+                                height: 80,
                                 fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const SizedBox(
+                                    width: 80,
+                                    height: 80,
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const SizedBox(
+                                    width: 80,
+                                    height: 80,
+                                    child: Icon(Icons.error, color: Colors.red),
+                                  );
+                                },
                               ),
                             ),
                           ),

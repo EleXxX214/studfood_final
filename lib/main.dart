@@ -9,6 +9,7 @@ import 'package:studfood/pages/adminpage.dart';
 import 'package:studfood/pages/mappage.dart';
 import 'package:studfood/pages/discountspage.dart';
 import 'package:studfood/pages/contactpage.dart';
+import 'package:studfood/pages/photopage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,10 @@ class MainApp extends StatelessWidget {
             );
           case 'AdminPage':
             return MaterialPageRoute(builder: (context) => const AdminPage());
+          case 'PhotoPage':
+            final String docId = settings.arguments as String;
+            return MaterialPageRoute(
+                builder: (context) => PhotoPage(docId: docId));
           case 'MapPage':
             return MaterialPageRoute(builder: (context) => const MapPage());
           case 'DiscountsPage':
