@@ -28,11 +28,15 @@ class _HomePageState extends State<HomePage> {
   final ValueNotifier<bool> isSearchBarOpenedNotifier = ValueNotifier(false);
 
   late Future<QuerySnapshot> _restaurantFuture;
+  List<DocumentSnapshot> _restaurantList = [];
 
   @override
   void initState() {
     super.initState();
-    _restaurantFuture = FirestoreService().getRestaurants();
+    _restaurantFuture = FirestoreService().getRestaurants().then((snapshot) {
+      _restaurantList = snapshot.docs;
+      return snapshot;
+    });
   }
 
   final firestoreService = FirestoreService();
@@ -54,10 +58,6 @@ class _HomePageState extends State<HomePage> {
 
   void toggleSearchBar() {
     isSearchBarOpenedNotifier.value = !isSearchBarOpenedNotifier.value;
-    if (!isSearchBarOpenedNotifier.value) {
-      searchController.clear();
-      searchQuery = "";
-    }
   }
 
   @override
@@ -79,12 +79,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: MyAppBar(onSearchButtonPressed: toggleSearchBar),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        onPressed: () => Navigator.pushNamed(context, "MapPage"),
-        child: const Icon(Icons.map),
-      ),
+      //floatingActionButton: FloatingActionButton(
+      // backgroundColor: Colors.white,
+      // foregroundColor: Colors.black,
+      //  onPressed: () => Navigator.pushNamed(context, "MapPage"),
+      //  child: const Icon(Icons.map),
+      // ),
       drawer: const MyDrawer(),
       body: GestureDetector(
         onTap: () {
@@ -143,11 +143,11 @@ class _HomePageState extends State<HomePage> {
                                   side: BorderSide.none,
                                   elevation: 3,
                                   shadowColor:
-                                      const Color.fromARGB(255, 255, 64, 214),
+                                      const Color.fromARGB(255, 197, 43, 164),
                                   backgroundColor:
-                                      const Color.fromARGB(184, 251, 146, 255),
+                                      const Color.fromARGB(255, 255, 255, 255),
                                   selectedColor:
-                                      const Color.fromARGB(255, 255, 64, 214),
+                                      const Color.fromARGB(255, 255, 205, 244),
                                   selected: selectedFilters.contains(filter),
                                   onSelected: (bool value) {
                                     setState(() {
@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                                     filters[index].id.capitalize,
                                     style: const TextStyle(
                                         color:
-                                            Color.fromARGB(255, 255, 240, 240)),
+                                            Color.fromARGB(255, 255, 43, 191)),
                                   ),
                                 ),
                               );
@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<DocumentSnapshot> restaurantList =
-                                snapshot.data!.docs;
+                                _restaurantList;
 
                             //-------------------------------------------
                             //              RESTAURANT SEARCH
@@ -195,7 +195,7 @@ class _HomePageState extends State<HomePage> {
                                     (doc.data() as Map<String, dynamic>)['name']
                                         .toString()
                                         .toLowerCase();
-                                return name.contains(searchQuery);
+                                return name.contains(searchQuery.toLowerCase());
                               }).toList();
                             }
 
@@ -249,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                                       openingHour: restaurant[day] ?? "No data",
                                       imageUrl: logoUrl.isNotEmpty
                                           ? logoUrl
-                                          : 'https://via.placeholder.com/80',
+                                          : 'assets/images/paper.webp',
                                       onTap: () {
                                         Navigator.pushNamed(
                                           context,

@@ -39,7 +39,7 @@ class CustomListTile extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.topRight,
               colors: [
-                Color.fromARGB(155, 251, 146, 255),
+                Color.fromARGB(255, 253, 43, 225),
                 Color.fromARGB(255, 255, 255, 255),
               ],
             ),
@@ -89,15 +89,15 @@ class CustomListTile extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
                               child: Image.network(
                                 imageUrl,
-                                width: 80,
-                                height: 80,
+                                width: 50,
+                                height: 50,
                                 fit: BoxFit.cover,
                                 loadingBuilder:
                                     (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
                                   return const SizedBox(
-                                    width: 80,
-                                    height: 80,
+                                    width: 50,
+                                    height: 50,
                                     child: Center(
                                         child: CircularProgressIndicator()),
                                   );

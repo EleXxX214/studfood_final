@@ -234,7 +234,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       onPressed: () {},
                       icon: const Icon(Icons.favorite_border),
                       iconSize: 80,
-                      color: const Color.fromARGB(255, 71, 46, 46),
+                      color: const Color.fromARGB(255, 253, 43, 225),
                     ),
                     // ----------------------------------
                     //              MENU ICON
@@ -244,7 +244,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       onPressed: () {},
                       icon: const Icon(Icons.menu_book),
                       iconSize: 80,
-                      color: const Color.fromARGB(255, 71, 47, 47),
+                      color: const Color.fromARGB(255, 253, 43, 225),
                     ),
                     // ----------------------------------
                     //          NAVIGATION ICON
@@ -256,7 +256,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       },
                       icon: const Icon(Icons.near_me),
                       iconSize: 80,
-                      color: const Color.fromARGB(255, 83, 53, 53),
+                      color: const Color.fromARGB(255, 253, 43, 225),
                     ),
                     const Spacer(),
                   ],
