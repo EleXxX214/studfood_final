@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class CustomListTile extends StatelessWidget {
@@ -7,6 +8,7 @@ class CustomListTile extends StatelessWidget {
   final String openingHour;
   final VoidCallback onTap;
   final String imageUrl;
+
   const CustomListTile({
     super.key,
     required this.name,
@@ -25,16 +27,8 @@ class CustomListTile extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(8.0),
-          height: 300,
+          height: 330, // Zwiększona wysokość kafelka
           decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color:
-                    const Color.fromARGB(255, 255, 255, 255).withOpacity(0.5),
-                blurRadius: 10,
-                spreadRadius: 3,
-              ),
-            ],
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.topRight,
@@ -47,82 +41,32 @@ class CustomListTile extends StatelessWidget {
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return Stack(
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.access_time),
-                                Text(openingHour),
-                                const Text("     "),
-                                Text(discountCount?.toString() ?? ""),
-                                const Icon(Icons.local_fire_department_rounded),
-                              ],
-                            )
-                          ],
-                        ),
-                      ],
+                  Text(name, style: const TextStyle(fontSize: 23)),
+                  const SizedBox(height: 5),
+                  SizedBox(
+                    width: constraints
+                        .maxWidth, // Dopasowanie do szerokości kafelka
+                    height: 240, // Zwiększona wysokość obrazu
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error, size: 50),
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 5),
                   Row(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(name, style: const TextStyle(fontSize: 23)),
-                            ],
-                          ),
-                          SizedBox(
-                            width: constraints.maxWidth *
-                                1, // Szerokość względem kafelka
-                            height: 220,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image.network(
-                                imageUrl,
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return const SizedBox(
-                                    width: 50,
-                                    height: 50,
-                                    child: Center(
-                                        child: CircularProgressIndicator()),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const SizedBox(
-                                    width: 80,
-                                    height: 80,
-                                    child: Icon(Icons.error, color: Colors.red),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on_outlined),
-                              Text(address),
-                            ],
-                          ),
-                        ],
-                      ),
+                      const Icon(Icons.location_on_outlined),
+                      Text(address),
                     ],
                   ),
                 ],

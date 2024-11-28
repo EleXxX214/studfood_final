@@ -25,66 +25,64 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocus = FocusNode();
   final ScrollController _scrollController = ScrollController();
-  final ValueNotifier<bool> isSearchBarOpenedNotifier = ValueNotifier(false);
-
-  late Future<QuerySnapshot> _restaurantFuture;
+  late Future<void> preloadFuture; // Future do ładowania danych
   List<DocumentSnapshot> _restaurantList = [];
+  final Map<String, String> logoUrls = {}; // Cache URL-i logo
 
   @override
   void initState() {
     super.initState();
-    _restaurantFuture = FirestoreService().getRestaurants().then((snapshot) {
-      _restaurantList = snapshot.docs;
-      return snapshot;
-    });
+    preloadFuture = preloadData();
   }
 
-  final firestoreService = FirestoreService();
+  Future<void> preloadData() async {
+    try {
+      QuerySnapshot snapshot = await FirestoreService().getRestaurants();
+      _restaurantList = snapshot.docs;
 
-  Future<String> getLogoUrl(String restaurantId) async {
-    String url = await FirebaseStorage.instance
-        .ref('restaurants_photos/$restaurantId/logo.jpg')
-        .getDownloadURL();
-    return url;
+      for (var restaurant in _restaurantList) {
+        String docId = restaurant.id;
+
+        if (!logoUrls.containsKey(docId)) {
+          try {
+            String url = await FirebaseStorage.instance
+                .ref('restaurants_photos/$docId/logo.jpg')
+                .getDownloadURL();
+            logoUrls[docId] = url;
+          } catch (e) {
+            logger.e('Failed to load logo for $docId: $e');
+            logoUrls[docId] = 'assets/images/paper.webp'; // Domyślny obrazek
+          }
+        }
+      }
+      setState(() {}); // Odśwież widok po załadowaniu
+    } catch (e) {
+      logger.e('Error loading data: $e');
+    }
   }
 
   @override
   void dispose() {
     searchController.dispose();
     searchFocus.dispose();
-    isSearchBarOpenedNotifier.dispose();
     super.dispose();
   }
 
   void toggleSearchBar() {
-    isSearchBarOpenedNotifier.value = !isSearchBarOpenedNotifier.value;
+    setState(() {
+      isSearchBarOpened = !isSearchBarOpened;
+      if (!isSearchBarOpened) {
+        searchController.clear();
+        searchQuery = "";
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    String day = "";
-    FirestoreService().getFilters();
-
-    DateTime today = DateTime.now();
-    var weekday = today.weekday;
-
-    if (weekday == 7) day = "sunday";
-    if (weekday == 1) day = "monday";
-    if (weekday == 2) day = "tuesday";
-    if (weekday == 3) day = "wednesday";
-    if (weekday == 4) day = "thursday";
-    if (weekday == 5) day = "friday";
-    if (weekday == 6) day = "saturday";
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: MyAppBar(onSearchButtonPressed: toggleSearchBar),
-      //floatingActionButton: FloatingActionButton(
-      // backgroundColor: Colors.white,
-      // foregroundColor: Colors.black,
-      //  onPressed: () => Navigator.pushNamed(context, "MapPage"),
-      //  child: const Icon(Icons.map),
-      // ),
       drawer: const MyDrawer(),
       body: GestureDetector(
         onTap: () {
@@ -92,33 +90,28 @@ class _HomePageState extends State<HomePage> {
             searchFocus.unfocus();
           }
         },
-        child: Stack(
-          children: [
-            Column(
+        child: FutureBuilder<void>(
+          future: preloadFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return Column(
               children: [
                 //-------------------------------------------
                 //                 SEARCH BAR
                 //-------------------------------------------
-                ValueListenableBuilder<bool>(
-                  valueListenable: isSearchBarOpenedNotifier,
-                  builder: (context, isSearchBarOpened, child) {
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: isSearchBarOpened
-                          ? CustomSearchBar(
-                              key: const ValueKey('searchBar'),
-                              searchController: searchController,
-                              searchFocus: searchFocus,
-                              onSearchChanged: (value) {
-                                setState(() {
-                                  searchQuery = value;
-                                });
-                              },
-                            )
-                          : const SizedBox.shrink(),
-                    );
-                  },
-                ),
+                if (isSearchBarOpened)
+                  CustomSearchBar(
+                    searchController: searchController,
+                    searchFocus: searchFocus,
+                    onSearchChanged: (value) {
+                      setState(() {
+                        searchQuery = value.toLowerCase();
+                      });
+                    },
+                  ),
                 //-------------------------------------------
                 //            FOOD FILTER LIST
                 //-------------------------------------------
@@ -176,104 +169,58 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
+                //-------------------------------------------
+                //            RESTAURANT LIST
+                //-------------------------------------------
                 Expanded(
-                  child: Stack(
-                    children: [
-                      FutureBuilder<QuerySnapshot>(
-                        future: _restaurantFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            List<DocumentSnapshot> restaurantList =
-                                _restaurantList;
+                  child: ListView.builder(
+                    itemCount: _restaurantList.length,
+                    controller: _scrollController,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot document = _restaurantList[index];
+                      String docId = document.id;
+                      Map<String, dynamic> restaurant =
+                          document.data() as Map<String, dynamic>;
 
-                            //-------------------------------------------
-                            //              RESTAURANT SEARCH
-                            //-------------------------------------------
-                            if (searchQuery.isNotEmpty) {
-                              restaurantList = restaurantList.where((doc) {
-                                String name =
-                                    (doc.data() as Map<String, dynamic>)['name']
-                                        .toString()
-                                        .toLowerCase();
-                                return name.contains(searchQuery.toLowerCase());
-                              }).toList();
-                            }
+                      // Filtracja wyników po wyszukiwarce
+                      if (searchQuery.isNotEmpty &&
+                          !restaurant['name']
+                              .toString()
+                              .toLowerCase()
+                              .contains(searchQuery)) {
+                        return const SizedBox.shrink();
+                      }
 
-                            //-------------------------------------------
-                            //              FOOD FILTERING
-                            //-------------------------------------------
-                            if (selectedFilters.isNotEmpty) {
-                              restaurantList = restaurantList.where((doc) {
-                                String? filter = (doc.data()
-                                    as Map<String, dynamic>)['filter1'];
-                                if (filter != null) {
-                                  return selectedFilters.contains(filter);
-                                }
-                                return false;
-                              }).toList();
-                            }
+                      // Filtracja po wybranych filtrach
+                      if (selectedFilters.isNotEmpty &&
+                          !selectedFilters.contains(restaurant['filter1'])) {
+                        return const SizedBox.shrink();
+                      }
 
-                            //-------------------------------------------
-                            //        RESTAURANT TILES BUILDER
-                            //-------------------------------------------
-                            return ListView.builder(
-                              itemCount: restaurantList.length,
-                              controller: _scrollController,
-                              itemBuilder: (context, index) {
-                                DocumentSnapshot document =
-                                    restaurantList[index];
-                                String docId = document.id;
-                                Map<String, dynamic> restaurant =
-                                    document.data() as Map<String, dynamic>;
+                      // Pobierz URL logo z cache
+                      String logoUrl =
+                          logoUrls[docId] ?? 'assets/images/paper.webp';
 
-                                return FutureBuilder<String>(
-                                  future: getLogoUrl(docId),
-                                  builder: (context, logoSnapshot) {
-                                    if (logoSnapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const SizedBox(
-                                        height: 100,
-                                        child: Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                      );
-                                    }
-                                    firestoreService.updateDiscountCount(docId);
-                                    String logoUrl = logoSnapshot.data ?? '';
-
-                                    return CustomListTile(
-                                      name: restaurant['name'],
-                                      address: restaurant['address'],
-                                      discountCount:
-                                          restaurant['discountCount'],
-                                      openingHour: restaurant[day] ?? "No data",
-                                      imageUrl: logoUrl.isNotEmpty
-                                          ? logoUrl
-                                          : 'assets/images/paper.webp',
-                                      onTap: () {
-                                        Navigator.pushNamed(
-                                          context,
-                                          'RestaurantPage',
-                                          arguments: docId,
-                                        );
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                            );
-                          } else {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
+                      return CustomListTile(
+                        name: restaurant['name'],
+                        address: restaurant['address'],
+                        discountCount: restaurant['discountCount'],
+                        openingHour: restaurant['openingHour'] ?? 'No data',
+                        imageUrl: logoUrl,
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            'RestaurantPage',
+                            arguments: docId,
+                          );
                         },
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                )
+                ),
               ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
