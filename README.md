@@ -1,6 +1,13 @@
 # StudFood - Lista restauracji ze zniżkami dla studentów 🍔🎓
 
 **StudFood** to aplikacja mobilna stworzona z myślą o studentach, którzy chcą oszczędzać na jedzeniu w mieście. Aplikacja oferuje listę restauracji w wybranych miastach, które zapewniają zniżki i promocje specjalnie dla studentów.
+<p align="center">
+  <img src="https://imgur.com/gyNN94r"  width="300">
+  <img src="https://imgur.com/lxuKdWo"  width="300">
+</p>
+
+
+
 
 ## Funkcjonalności 📋
 - **Lista restauracji**: Przegląd restauracji w danym mieście oferujących zniżki dla studentów.
@@ -17,6 +24,7 @@ Dzięki **StudFood** studenci mogą:
 ## Technologie użyte w projekcie 💻
 - **Frontend**: Flutter - nowoczesny i wydajny framework do tworzenia aplikacji mobilnych.
 - **Backend**: Firebase - obsługa baz danych, uwierzytelniania użytkowników i funkcji w chmurze.
+
 
 ## Wkład i rozwój 📈
 Projekt jest wciąż rozwijany i każda pomoc mile widziana! Chętnie przyjmiemy sugestie dotyczące nowych funkcji lub współpracę przy rozwoju aplikacji.  
