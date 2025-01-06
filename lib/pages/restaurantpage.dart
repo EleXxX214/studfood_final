@@ -9,6 +9,7 @@ import 'package:studfood/services/firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
+import 'package:cached_network_image/cached_network_image.dart';
 
 var logger = Logger();
 
@@ -156,74 +157,53 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 //            Restaurant image
                 // ----------------------------------
                 SizedBox(
-                    width: 450,
-                    height: 300,
-                    child: CarouselSlider(
-                      options: CarouselOptions(
-                        height: 300,
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                      ),
-                      items: imageUrls.map((url) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                  20), // Zaokrąglenie rogów
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  Image.network(
-                                    url,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent? loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child; // Obraz został załadowany
-                                      }
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  (loadingProgress
-                                                          .expectedTotalBytes ??
-                                                      1)
-                                              : null, // Obliczenie postępu ładowania
-                                        ),
-                                      );
-                                    },
-                                    errorBuilder: (BuildContext context,
-                                        Object error, StackTrace? stackTrace) {
-                                      return const Center(
-                                        child: Icon(Icons.error,
-                                            color: Colors.red),
-                                      );
-                                    },
+                  width: 450,
+                  height: 300,
+                  child: CarouselSlider(
+                    options: CarouselOptions(
+                      height: 300,
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                    ),
+                    items: imageUrls.map((url) {
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl: url,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator(),
                                   ),
-                                  // Opcjonalny cień dla obrazu
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.black26,
-                                          Colors.transparent
-                                        ],
-                                        begin: Alignment.bottomCenter,
-                                        end: Alignment.topCenter,
-                                      ),
+                                  errorWidget: (context, url, error) =>
+                                      const Center(
+                                    child: Icon(Icons.error, color: Colors.red),
+                                  ),
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withOpacity(0.6)
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
                                     ),
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      }).toList(),
-                    )),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
                 Row(
                   children: [
                     // ----------------------------------
@@ -234,7 +214,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       onPressed: () {},
                       icon: const Icon(Icons.favorite_border),
                       iconSize: 80,
-                      color: const Color.fromARGB(255, 253, 43, 225),
+                      color: Color.fromARGB(255, 0, 0, 0),
                     ),
                     // ----------------------------------
                     //              MENU ICON
@@ -244,7 +224,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       onPressed: () {},
                       icon: const Icon(Icons.menu_book),
                       iconSize: 80,
-                      color: const Color.fromARGB(255, 253, 43, 225),
+                      color: Color.fromARGB(255, 0, 0, 0),
                     ),
                     // ----------------------------------
                     //          NAVIGATION ICON
@@ -256,7 +236,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       },
                       icon: const Icon(Icons.near_me),
                       iconSize: 80,
-                      color: const Color.fromARGB(255, 253, 43, 225),
+                      color: Color.fromARGB(255, 0, 0, 0),
                     ),
                     const Spacer(),
                   ],

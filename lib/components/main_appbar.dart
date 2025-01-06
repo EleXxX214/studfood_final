@@ -16,11 +16,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       scrolledUnderElevation: 0,
       elevation: 0,
-      title: Text(
-        "StudFooD",
-        style: TextStyle(
-            fontFamily: GoogleFonts.kirangHaerang().fontFamily, fontSize: 35),
-      ),
+      title: Image.asset('assets/photos/LogoStudFood.png'),
       actions: [
         IconButton(
           onPressed: onSearchButtonPressed,

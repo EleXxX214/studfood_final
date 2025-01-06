@@ -5,9 +5,9 @@ import 'package:logger/logger.dart';
 import 'package:studfood/components/main_appbar.dart';
 import 'package:studfood/components/my_drawer.dart';
 import 'package:studfood/components/custom_list_tile.dart';
+import 'package:studfood/components/food_filter.dart';
 import 'package:studfood/services/firestore.dart';
 import 'package:studfood/components/custom_search_bar.dart';
-import 'package:string_extensions/string_extensions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,7 +18,6 @@ class HomePage extends StatefulWidget {
 
 Logger logger = Logger();
 bool isSearchBarOpened = false;
-List<String> selectedFilters = [];
 
 class _HomePageState extends State<HomePage> {
   String searchQuery = "";
@@ -28,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   late Future<void> preloadFuture; // Future do ładowania danych
   List<DocumentSnapshot> _restaurantList = [];
   final Map<String, String> logoUrls = {}; // Cache URL-i logo
+  List<String> selectedFilters = []; // Dodajemy to do stanu
 
   @override
   void initState() {
@@ -115,59 +115,13 @@ class _HomePageState extends State<HomePage> {
                 //-------------------------------------------
                 //            FOOD FILTER LIST
                 //-------------------------------------------
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: SizedBox(
-                    height: 50,
-                    child: FutureBuilder<QuerySnapshot>(
-                      future: FirestoreService().getFilters(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          final filters = snapshot.data!.docs;
-                          return ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: filters.length,
-                            itemBuilder: (context, index) {
-                              final filter = filters[index].id;
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: FilterChip(
-                                  side: BorderSide.none,
-                                  elevation: 3,
-                                  shadowColor:
-                                      const Color.fromARGB(255, 197, 43, 164),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 255, 255, 255),
-                                  selectedColor:
-                                      const Color.fromARGB(255, 255, 205, 244),
-                                  selected: selectedFilters.contains(filter),
-                                  onSelected: (bool value) {
-                                    setState(() {
-                                      if (value) {
-                                        selectedFilters.add(filter);
-                                      } else {
-                                        selectedFilters.remove(filter);
-                                      }
-                                    });
-                                  },
-                                  label: Text(
-                                    filters[index].id.capitalize,
-                                    style: const TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 255, 43, 191)),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                      },
-                    ),
-                  ),
+                FoodFilter(
+                  selectedFilters: selectedFilters,
+                  onFilterChanged: (List<String> newFilters) {
+                    setState(() {
+                      selectedFilters = newFilters;
+                    });
+                  },
                 ),
                 //-------------------------------------------
                 //            RESTAURANT LIST

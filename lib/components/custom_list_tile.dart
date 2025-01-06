@@ -2,13 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class CustomListTile extends StatelessWidget {
-  final String name;
-  final String address;
-  final int? discountCount;
-  final String openingHour;
-  final VoidCallback onTap;
-  final String imageUrl;
-
   const CustomListTile({
     super.key,
     required this.name,
@@ -19,60 +12,101 @@ class CustomListTile extends StatelessWidget {
     required this.imageUrl,
   });
 
+  final String address;
+  final int? discountCount;
+  final String imageUrl;
+  final String name;
+  final VoidCallback onTap;
+  final String openingHour;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: InkWell(
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          height: 330, // Zwiększona wysokość kafelka
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.topRight,
-              colors: [
-                Color.fromARGB(255, 253, 43, 225),
-                Color.fromARGB(255, 255, 255, 255),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: const TextStyle(fontSize: 23)),
-                  const SizedBox(height: 5),
-                  SizedBox(
-                    width: constraints
-                        .maxWidth, // Dopasowanie do szerokości kafelka
-                    height: 240, // Zwiększona wysokość obrazu
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) =>
-                            const Center(child: CircularProgressIndicator()),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error, size: 50),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    SizedBox(
+                      width: constraints.maxWidth,
+                      height: 240,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CachedNetworkImage(
+                              width: double.infinity,
+                              height: double.infinity,
+                              imageUrl: imageUrl,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error, size: 50),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.6)
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined),
-                      Text(address),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
+                    Positioned(
+                      bottom: 10,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          //
+                          // Nazwa restauracji
+                          //
+                          Padding(
+                            padding: const EdgeInsets.only(left: 13),
+                            child: Text(
+                              name,
+                              style: const TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          //
+                          //
+                          //
+
+                          Padding(
+                            padding: const EdgeInsets.only(left: 13),
+                            child: Text(
+                              address,
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            );
+          },
         ),
       ),
     );
