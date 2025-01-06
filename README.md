@@ -2,8 +2,8 @@
 
 **StudFood** to aplikacja mobilna stworzona z myślą o studentach, którzy chcą oszczędzać na jedzeniu w mieście. Aplikacja oferuje listę restauracji w wybranych miastach, które zapewniają zniżki i promocje specjalnie dla studentów.
 <p align="center">
-  <img src="https://imgur.com/gyNN94r"  width="300">
-  <img src="https://imgur.com/lxuKdWo"  width="300">
+  <img src="[https://imgur.com/gyNN94r](https://imgur.com/lxuKdWo)"  width="300">
+  
 </p>
 
 
