@@ -11,6 +11,7 @@ import 'package:studfood/pages/discountspage.dart';
 import 'package:studfood/pages/contactpage.dart';
 import 'package:studfood/pages/photopage.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:studfood/pages/suggestpage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,6 +60,8 @@ class MainApp extends StatelessWidget {
             );
           case "ContactPage":
             return MaterialPageRoute(builder: (context) => const ContactPage());
+          case "SuggestPage":
+            return MaterialPageRoute(builder: (context) => const SuggestPage());
           default:
             return null;
         }

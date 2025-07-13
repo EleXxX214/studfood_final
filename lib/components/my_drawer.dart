@@ -22,7 +22,9 @@ class MyDrawer extends StatelessWidget {
             ),
             ListTile(
               title: const Text("Zgłoś restauracje"),
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, 'SuggestPage');
+              },
             ),
             ListTile(
               title: const Text("Kontakt"),

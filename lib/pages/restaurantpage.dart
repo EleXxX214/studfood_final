@@ -209,13 +209,13 @@ class _RestaurantPageState extends State<RestaurantPage> {
                     // ----------------------------------
                     //              HEART ICON
                     // ----------------------------------
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.favorite_border),
-                      iconSize: 80,
-                      color: Color.fromARGB(255, 0, 0, 0),
-                    ),
+                    //const Spacer(),
+                    //IconButton(
+                    //  onPressed: () {},
+                    // icon: const Icon(Icons.favorite_border),
+                    // iconSize: 80,
+                    //  color: const Color.fromARGB(255, 0, 0, 0),
+                    //),
                     // ----------------------------------
                     //              MENU ICON
                     // ----------------------------------
@@ -223,8 +223,9 @@ class _RestaurantPageState extends State<RestaurantPage> {
                     IconButton(
                       onPressed: () {},
                       icon: const Icon(Icons.menu_book),
+                      tooltip: "Menu",
                       iconSize: 80,
-                      color: Color.fromARGB(255, 0, 0, 0),
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     // ----------------------------------
                     //          NAVIGATION ICON
@@ -236,7 +237,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
                       },
                       icon: const Icon(Icons.near_me),
                       iconSize: 80,
-                      color: Color.fromARGB(255, 0, 0, 0),
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     const Spacer(),
                   ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onSearchButtonPressed;
@@ -42,7 +41,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ],
             title: const Text("Wybierz miasto:"),
-            content: const Text("[] Kraków"),
+            content: const Text("Więcej miast wkrótce!"),
           ),
         );
       },
