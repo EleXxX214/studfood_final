@@ -17,12 +17,11 @@ Future<List<String>> getImageUrls(String restaurantId) async {
   final storage = FirebaseStorage.instance;
   final listResult =
       await storage.ref('restaurants_photos/$restaurantId').listAll();
-  List<String> urls = [];
 
-  for (var item in listResult.items) {
-    String url = await item.getDownloadURL();
-    urls.add(url);
-  }
+  // Pobierz wszystkie URL-e równolegle
+  final urls = await Future.wait(
+    listResult.items.map((item) => item.getDownloadURL()),
+  );
 
   return urls;
 }
@@ -111,6 +110,31 @@ class _RestaurantPageState extends State<RestaurantPage> {
     }
   }
 
+  void _showFullImage(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: InteractiveViewer(
+            child: Center(
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.error, size: 80, color: Colors.red),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
 // ----------------------------------
 //              BUILD
 // ----------------------------------
@@ -168,35 +192,39 @@ class _RestaurantPageState extends State<RestaurantPage> {
                     items: imageUrls.map((url) {
                       return Builder(
                         builder: (BuildContext context) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                CachedNetworkImage(
-                                  imageUrl: url,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      const Center(
-                                    child: Icon(Icons.error, color: Colors.red),
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.transparent,
-                                        Colors.black.withOpacity(0.6)
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
+                          return GestureDetector(
+                            onTap: () => _showFullImage(url),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  CachedNetworkImage(
+                                    imageUrl: url,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        const Center(
+                                      child:
+                                          Icon(Icons.error, color: Colors.red),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.transparent,
+                                          Colors.black.withOpacity(0.6)
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -221,7 +249,85 @@ class _RestaurantPageState extends State<RestaurantPage> {
                     // ----------------------------------
                     const Spacer(),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final menuUrl = restaurantData['menuUrl'];
+                        print('Menu URL: $menuUrl');
+                        if (menuUrl != null &&
+                            menuUrl.toString().trim().isNotEmpty) {
+                          final uri = Uri.tryParse(menuUrl);
+                          print('Uri: $uri');
+                          if (uri != null) {
+                            print('Launching...');
+                            try {
+                              await launchUrl(uri,
+                                  mode: LaunchMode.externalApplication);
+                            } catch (e) {
+                              print('Error with externalApplication: $e');
+                              try {
+                                await launchUrl(uri,
+                                    mode: LaunchMode.platformDefault);
+                              } catch (e2) {
+                                print('Error with platformDefault: $e2');
+                                if (context.mounted) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Błąd'),
+                                      content: const Text(
+                                          'Nie można otworzyć linku do menu.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          } else {
+                            print('Cannot parse URI!');
+                            if (context.mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Błąd'),
+                                  content: const Text(
+                                      'Nieprawidłowy format linku do menu.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          }
+                        } else {
+                          print('Brak odnośnika do menu');
+                          if (context.mounted) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Brak odnośnika'),
+                                content: const Text(
+                                    'Brak odnośnika do menu tej restauracji.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        }
+                      },
                       icon: const Icon(Icons.menu_book),
                       tooltip: "Menu",
                       iconSize: 80,

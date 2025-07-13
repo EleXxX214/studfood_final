@@ -1,23 +1,34 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class CustomListTile extends StatelessWidget {
   const CustomListTile({
     super.key,
+    required this.docId,
     required this.name,
     required this.address,
     required this.discountCount,
     required this.openingHour,
     required this.onTap,
-    required this.imageUrl,
   });
 
+  final String docId;
   final String address;
   final int? discountCount;
-  final String imageUrl;
   final String name;
   final VoidCallback onTap;
   final String openingHour;
+
+  Future<String> _getLogoUrl() async {
+    try {
+      return await FirebaseStorage.instance
+          .ref('restaurants_photos/$docId/logo.jpg')
+          .getDownloadURL();
+    } catch (e) {
+      return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,84 +38,92 @@ class CustomListTile extends StatelessWidget {
         onTap: onTap,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
+            return FutureBuilder<String>(
+              future: _getLogoUrl(),
+              builder: (context, snapshot) {
+                Widget imageWidget;
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData &&
+                    snapshot.data!.isNotEmpty) {
+                  imageWidget = CachedNetworkImage(
+                    width: double.infinity,
+                    height: double.infinity,
+                    imageUrl: snapshot.data!,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Image.asset(
+                        'assets/images/paper.webp',
+                        fit: BoxFit.cover),
+                  );
+                } else {
+                  imageWidget = Image.asset('assets/images/paper.webp',
+                      fit: BoxFit.cover);
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: constraints.maxWidth,
-                      height: 240,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            CachedNetworkImage(
-                              width: double.infinity,
-                              height: double.infinity,
-                              imageUrl: imageUrl,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => const Center(
-                                  child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error, size: 50),
+                    Stack(
+                      children: [
+                        SizedBox(
+                          width: constraints.maxWidth,
+                          height: 240,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                imageWidget,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withOpacity(0.6)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.6)
-                                  ],
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 10,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 13),
+                                child: Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 30,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(left: 13),
+                                child: Text(
+                                  address,
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 10,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //
-                          // Nazwa restauracji
-                          //
-                          Padding(
-                            padding: const EdgeInsets.only(left: 13),
-                            child: Text(
-                              name,
-                              style: const TextStyle(
-                                fontSize: 30,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          //
-                          //
-                          //
-
-                          Padding(
-                            padding: const EdgeInsets.only(left: 13),
-                            child: Text(
-                              address,
-                              textAlign: TextAlign.left,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                      ],
+                    )
                   ],
-                )
-              ],
+                );
+              },
             );
           },
         ),

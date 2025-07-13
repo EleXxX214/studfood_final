@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:studfood/components/main_appbar.dart';
 import 'package:studfood/components/my_drawer.dart';
@@ -26,8 +25,14 @@ class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
   late Future<void> preloadFuture; // Future do ładowania danych
   List<DocumentSnapshot> _restaurantList = [];
-  final Map<String, String> logoUrls = {}; // Cache URL-i logo
-  List<String> selectedFilters = []; // Dodajemy to do stanu
+  List<DocumentSnapshot> _filteredRestaurantList = [];
+  List<String> selectedFilters = [];
+
+  // Dodane do paginacji i optymalizacji
+  final int _perPage = 10;
+  DocumentSnapshot? _lastDocument;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
@@ -37,28 +42,50 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> preloadData() async {
     try {
-      QuerySnapshot snapshot = await FirestoreService().getRestaurants();
+      QuerySnapshot snapshot =
+          await FirestoreService().getRestaurantsPaginated(limit: _perPage);
       _restaurantList = snapshot.docs;
-
-      for (var restaurant in _restaurantList) {
-        String docId = restaurant.id;
-
-        if (!logoUrls.containsKey(docId)) {
-          try {
-            String url = await FirebaseStorage.instance
-                .ref('restaurants_photos/$docId/logo.jpg')
-                .getDownloadURL();
-            logoUrls[docId] = url;
-          } catch (e) {
-            logger.e('Failed to load logo for $docId: $e');
-            logoUrls[docId] = 'assets/images/paper.webp'; // Domyślny obrazek
-          }
-        }
-      }
-      setState(() {}); // Odśwież widok po załadowaniu
+      _lastDocument = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+      _hasMore = snapshot.docs.length == _perPage;
+      _applyFilters();
     } catch (e) {
       logger.e('Error loading data: $e');
     }
+  }
+
+  Future<void> loadMoreRestaurants() async {
+    if (_isLoadingMore || !_hasMore) return;
+    _isLoadingMore = true;
+    try {
+      QuerySnapshot snapshot = await FirestoreService().getRestaurantsPaginated(
+        limit: _perPage,
+        startAfter: _lastDocument,
+      );
+      if (snapshot.docs.isNotEmpty) {
+        _restaurantList.addAll(snapshot.docs);
+        _lastDocument = snapshot.docs.last;
+        _hasMore = snapshot.docs.length == _perPage;
+        _applyFilters();
+      } else {
+        _hasMore = false;
+      }
+    } catch (e) {
+      logger.e('Error loading more: $e');
+    }
+    _isLoadingMore = false;
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _filteredRestaurantList = _restaurantList.where((document) {
+        final restaurant = document.data() as Map<String, dynamic>;
+        final matchesSearch = searchQuery.isEmpty ||
+            restaurant['name'].toString().toLowerCase().contains(searchQuery);
+        final matchesFilter = selectedFilters.isEmpty ||
+            selectedFilters.contains(restaurant['filter1']);
+        return matchesSearch && matchesFilter;
+      }).toList();
+    });
   }
 
   @override
@@ -74,6 +101,7 @@ class _HomePageState extends State<HomePage> {
       if (!isSearchBarOpened) {
         searchController.clear();
         searchQuery = "";
+        _applyFilters();
       }
     });
   }
@@ -107,9 +135,8 @@ class _HomePageState extends State<HomePage> {
                     searchController: searchController,
                     searchFocus: searchFocus,
                     onSearchChanged: (value) {
-                      setState(() {
-                        searchQuery = value.toLowerCase();
-                      });
+                      searchQuery = value.toLowerCase();
+                      _applyFilters();
                     },
                   ),
                 //-------------------------------------------
@@ -118,9 +145,8 @@ class _HomePageState extends State<HomePage> {
                 FoodFilter(
                   selectedFilters: selectedFilters,
                   onFilterChanged: (List<String> newFilters) {
-                    setState(() {
-                      selectedFilters = newFilters;
-                    });
+                    selectedFilters = newFilters;
+                    _applyFilters();
                   },
                 ),
                 //-------------------------------------------
@@ -128,39 +154,20 @@ class _HomePageState extends State<HomePage> {
                 //-------------------------------------------
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _restaurantList.length,
+                    itemCount: _filteredRestaurantList.length,
                     controller: _scrollController,
                     itemBuilder: (context, index) {
-                      DocumentSnapshot document = _restaurantList[index];
+                      DocumentSnapshot document =
+                          _filteredRestaurantList[index];
                       String docId = document.id;
                       Map<String, dynamic> restaurant =
                           document.data() as Map<String, dynamic>;
-
-                      // Filtracja wyników po wyszukiwarce
-                      if (searchQuery.isNotEmpty &&
-                          !restaurant['name']
-                              .toString()
-                              .toLowerCase()
-                              .contains(searchQuery)) {
-                        return const SizedBox.shrink();
-                      }
-
-                      // Filtracja po wybranych filtrach
-                      if (selectedFilters.isNotEmpty &&
-                          !selectedFilters.contains(restaurant['filter1'])) {
-                        return const SizedBox.shrink();
-                      }
-
-                      // Pobierz URL logo z cache
-                      String logoUrl =
-                          logoUrls[docId] ?? 'assets/images/paper.webp';
-
                       return CustomListTile(
+                        docId: docId,
                         name: restaurant['name'],
                         address: restaurant['address'],
                         discountCount: restaurant['discountCount'],
                         openingHour: restaurant['openingHour'] ?? 'No data',
-                        imageUrl: logoUrl,
                         onTap: () {
                           Navigator.pushNamed(
                             context,

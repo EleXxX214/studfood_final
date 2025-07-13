@@ -69,7 +69,12 @@ class _PhotoPageState extends State<PhotoPage> {
               .ref()
               .child('restaurants_photos/${widget.docId}/$imageType.jpg');
 
-          await storageRef.putFile(compressedImageFile);
+          // Dodaj metadata z cache na 2 tygodnie
+          final metadata = SettableMetadata(
+            cacheControl: 'public, max-age=1209600', // 2 tygodnie w sekundach
+          );
+
+          await storageRef.putFile(compressedImageFile, metadata);
 
           final downloadUrl = await storageRef.getDownloadURL();
           setState(() {

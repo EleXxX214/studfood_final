@@ -22,6 +22,7 @@ class FirestoreService {
     String address,
     num? discountsAmount,
     String description,
+    String menuUrl,
     String monday,
     String tuesday,
     String wednesday,
@@ -35,6 +36,7 @@ class FirestoreService {
       'address': address,
       'discountsAmount': discountsAmount,
       'description': description,
+      'menuUrl': menuUrl,
       'monday': monday,
       'tuesday': tuesday,
       'wednesday': wednesday,
@@ -62,6 +64,18 @@ class FirestoreService {
     return restaurantFuture;
   }
 
+  Future<QuerySnapshot> getRestaurantsPaginated(
+      {int limit = 10, DocumentSnapshot? startAfter}) {
+    Query query = FirebaseFirestore.instance
+        .collection('restaurants')
+        .orderBy('name')
+        .limit(limit);
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
+    return query.get();
+  }
+
 // --------------------------
 //  UPDATE_RESTAURANTS
 // --------------------------
@@ -72,6 +86,7 @@ class FirestoreService {
     String newAddress,
     num? newDiscountsAmount,
     String newDescription,
+    String menuUrl,
     String monday,
     String tuesday,
     String wednesday,
@@ -85,6 +100,7 @@ class FirestoreService {
       'address': newAddress,
       'discountsAmount': newDiscountsAmount,
       'description': newDescription,
+      'menuUrl': menuUrl,
       'monday': monday,
       'tuesday': tuesday,
       'wednesday': wednesday,
